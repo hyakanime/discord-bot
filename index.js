@@ -9,6 +9,7 @@ const client = new Client(
             GatewayIntentBits.GuildBans,
             GatewayIntentBits.GuildMessages,
             GatewayIntentBits.MessageContent,
+            GatewayIntentBits.GuildMembers,
         ],
         partials: [Partials.Channel],
     }
@@ -205,8 +206,9 @@ client.on('interactionCreate', async (interaction) => {
 
 
 // message a l'arrivée d'un membre
-client.on("guildMemberAdd", (member) => {
+client.on('guildMemberAdd',async (member) => {
     let Pseudo = member.user.id;
+    console.log("ca marche");
 
     let number = Math.floor(Math.random() * Math.floor(23));
 
@@ -242,15 +244,17 @@ client.on("guildMemberAdd", (member) => {
     }
 
     var avatar = member.user.avatarURL()
-    const embed = new EmbedBuilder()
+    console.log(avatar);
+    console.log(phrases[number]);
+    const embedBienvenue = new EmbedBuilder()
         .setTitle("Nouveau membre !")
         .setDescription(phrases[number])
         .setThumbnail(avatar)
-        .setFooter('Hyakanime')
+        .setFooter({text:'Hyakanime', iconUrl: avatar})
         .setColor('#35B0FF')
 
-    const channel = client.channels.cache.get("846317312327811092");
-    channel.send({ content: '', embed: [embed] });
+    const channel = client.channels.cache.get("744950913382481980");
+    channel.send({embeds: [embedBienvenue] });
 
 })
 
