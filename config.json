@@ -1,3 +1,12 @@
 {
-	"token": "REMPLIR-AVEC-LE-TOKEN-DU-BOT"
+	"token": "REMPLIR-AVEC-LE-TOKEN-DU-BOT",
+	"channelBeta": "1036762035645599755",
+	"channelBienvenue": "744950913382481980",
+	"roleMembre" : "845340817828479026",
+	"rolePatchNotes" : "1012649092343668857",
+	"roleIos" : "949075801637281812",
+	"roleSite" : "949075846113669131",
+	"roleBonPlan" : "948247271290572850",
+	"roleGenshin" : "948247223894954074"
 }
+
