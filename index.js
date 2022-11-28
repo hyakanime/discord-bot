@@ -1,5 +1,5 @@
 const { Partials, Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { token } = require('./config.json');
+const { token , roleBeta, channelBeta, channelBienvenue, roleMembre, rolePatchNotes, roleIos, roleAndroid, roleSite , roleBonPlan, roleGenshin} = require('./config.json');
 
 const client = new Client(
     {
@@ -9,6 +9,7 @@ const client = new Client(
             GatewayIntentBits.GuildBans,
             GatewayIntentBits.GuildMessages,
             GatewayIntentBits.MessageContent,
+            GatewayIntentBits.GuildMembers,
         ],
         partials: [Partials.Channel],
     }
@@ -168,7 +169,7 @@ client.on('interactionCreate', async (interaction) => {
             var system = interaction.options.get("système").value;
             if (/^[a-zA-Z0-9_.]+@[a-zA-Z0-9]+\.[a-zA-Z]{1,3}$/.test(email)) {
 
-                role = interaction.guild.roles.cache.find(role => role.id == "1036572391201054730");
+                role = interaction.guild.roles.cache.find(role => role.id == roleBeta);
                 await interaction.member.roles.add(role);
 
                 const embedBeta = new EmbedBuilder()
@@ -187,7 +188,7 @@ client.on('interactionCreate', async (interaction) => {
                         { name: 'email', value: email, inline: false },
                     )
                     .setColor('#3d67ff')
-                client.channels.cache.get("1036762035645599755").send({ content: '', embeds: [embedbetaAdmin] })
+                client.channels.cache.get(channelBeta).send({ content: '', embeds: [embedbetaAdmin] })
 
                 await interaction.reply({ content: '', embeds: [embedBeta], ephemeral: true });
 
@@ -205,7 +206,7 @@ client.on('interactionCreate', async (interaction) => {
 
 
 // message a l'arrivée d'un membre
-client.on("guildMemberAdd", (member) => {
+client.on('guildMemberAdd',async (member) => {
     let Pseudo = member.user.id;
 
     let number = Math.floor(Math.random() * Math.floor(23));
@@ -242,15 +243,15 @@ client.on("guildMemberAdd", (member) => {
     }
 
     var avatar = member.user.avatarURL()
-    const embed = new EmbedBuilder()
+    const embedBienvenue = new EmbedBuilder()
         .setTitle("Nouveau membre !")
         .setDescription(phrases[number])
         .setThumbnail(avatar)
-        .setFooter('Hyakanime')
+        .setFooter({text:'Hyakanime', iconUrl: avatar})
         .setColor('#35B0FF')
 
-    const channel = client.channels.cache.get("846317312327811092");
-    channel.send({ content: '', embed: [embed] });
+    const channel = client.channels.cache.get(channelBienvenue);
+    channel.send({embeds: [embedBienvenue] });
 
 })
 
@@ -295,37 +296,37 @@ client.on('interactionCreate', async (interaction) => {
     switch (interaction.customId) {
         case 'verifyButton':
             interaction.reply({ content: 'Vous venez de recevoir le rôle <@&845340817828479026>', ephemeral: true });
-            role = interaction.guild.roles.cache.find(role => role.id == "845340817828479026");
+            role = interaction.guild.roles.cache.find(role => role.id == roleMembre);
             await interaction.member.roles.add(role);
             break;
         case 'role-patchnote':
             interaction.reply({ content: 'Vous venez de recevoir le rôle <@&1012649092343668857>', ephemeral: true });
-            role = interaction.guild.roles.cache.find(role => role.id == "1012649092343668857");
+            role = interaction.guild.roles.cache.find(role => role.id == rolePatchNotes);
             await interaction.member.roles.add(role);
             break;
         case 'role-ios':
             interaction.reply({ content: 'Vous venez de recevoir le rôle <@&949075801637281812>', ephemeral: true });
-            role = interaction.guild.roles.cache.find(role => role.id == "949075801637281812");
+            role = interaction.guild.roles.cache.find(role => role.id == roleIos);
             await interaction.member.roles.add(role);
             break;
         case 'role-android':
             interaction.reply({ content: 'Vous venez de recevoir le rôle <@&949360235011776533>', ephemeral: true });
-            role = interaction.guild.roles.cache.find(role => role.id == "949360235011776533");
+            role = interaction.guild.roles.cache.find(role => role.id == roleAndroid);
             await interaction.member.roles.add(role);
             break;
         case 'role-siteweb':
             interaction.reply({ content: 'Vous venez de recevoir le rôle <@&949075846113669131>', ephemeral: true });
-            role = interaction.guild.roles.cache.find(role => role.id == "949075846113669131");
+            role = interaction.guild.roles.cache.find(role => role.id == roleSite);
             await interaction.member.roles.add(role);
             break;
         case 'role-bonplan':
             interaction.reply({ content: 'Vous venez de recevoir le rôle <@&948247271290572850>', ephemeral: true });
-            role = interaction.guild.roles.cache.find(role => role.id == "948247271290572850");
+            role = interaction.guild.roles.cache.find(role => role.id == roleBonPlan);
             await interaction.member.roles.add(role);
             break;
         case 'role-genshin':
             interaction.reply({ content: 'Vous venez de recevoir le rôle <@&948247223894954074>', ephemeral: true });
-            role = interaction.guild.roles.cache.find(role => role.id == "948247223894954074");
+            role = interaction.guild.roles.cache.find(role => role.id == roleGenshin);
             await interaction.member.roles.add(role);
             break;
         default:
@@ -338,4 +339,3 @@ client.on('interactionCreate', async (interaction) => {
 
 
 client.login(token);
-
