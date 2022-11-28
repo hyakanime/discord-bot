@@ -1,6 +1,7 @@
 const { Partials, Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 const { token , roleBeta, channelBeta, channelBienvenue, roleMembre, rolePatchNotes, roleIos, roleAndroid, roleSite , roleBonPlan, roleGenshin} = require('./config.json');
-
+const {phrases} = require('./bienvenue.json');
+const fetch = require("node-fetch");
 const client = new Client(
     {
         intents: [
@@ -198,7 +199,73 @@ client.on('interactionCreate', async (interaction) => {
             }
 
             break;
+        case 'agenda':
 
+            await interaction.deferReply();
+            let date = new Date();
+            date.setHours(0, 0, 0, 0);
+            timestampAjrd = Date.parse(date);
+            date.setDate(date.getDate() + 1);
+            timestampDemain = Date.parse(date);
+        
+            let headersList = {
+              Accept: "*/*",
+              "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+            };
+        
+            let response = await fetch(
+              "https://api.hyakanime.fr/episode/sortie-hebdo/" +
+                timestampAjrd +
+                "/" +
+                timestampDemain,
+              {
+                method: "GET",
+                headers: headersList,
+              }
+            );
+        
+            let data = await response.text();
+            var result = JSON.parse(data);
+            var i = 0;
+            var b = 0;
+            var nom = [];
+            var episode = [];
+            var timestamp = [];
+            while (i < result.length) {
+              if (result[i].displayCalendar == true) {
+                nom[b] = result[i].animeTitle;
+                episode[b] = result[i].title;
+                const heure = new Date(result[i].timestamp);
+                if (heure.getMinutes() == 0) {
+                  timestamp[b] = heure.getHours() + "h00" ;
+                } else {
+                  timestamp[b] = heure.getHours() + "h" + heure.getMinutes();
+                }
+                b++;
+              }
+              i++;
+            }
+            i = 0;
+            const exampleEmbed = new EmbedBuilder()
+              .setColor(0x0099ff)
+              .setTitle("Agenda du Jour")
+              .setURL("https://hyakanime.fr/agenda")
+              .setAuthor({
+                name: "hyakanime",
+                iconURL:
+                  "https://www.hyakanime.fr/static/media/appLogo.7fac0ec4359bda8ccf0f.png",
+                url: "https://hyakanime.fr",
+              })
+              .setTimestamp();
+              i=0
+              while (i < nom.length) {
+                exampleEmbed.addFields({name: timestamp[i], value: nom[i].slice(0, 43)+" - "+episode[i], inline: false})
+              i++;
+              }
+                
+              
+            await interaction.editReply({ embeds: [exampleEmbed] });
+            break;
     }
 
 
@@ -208,44 +275,12 @@ client.on('interactionCreate', async (interaction) => {
 // message a l'arrivée d'un membre
 client.on('guildMemberAdd',async (member) => {
     let Pseudo = member.user.id;
-
-    let number = Math.floor(Math.random() * Math.floor(23));
-
-    let phrases = [
-        `<@${Pseudo}> vient d'arriver en Naruto run !`,
-        `<@${Pseudo}> viens de manger un fruit du Démon`,
-        `<@${Pseudo}> débarque dans le bataillon d'exploration !`,
-        `L'équipage au chapeau de paille n'attendait que <@${Pseudo}>, en route vers Grand line !`,
-        `Le Vogue Merry accueil enfin <@${Pseudo}> !`,
-        `<@${Pseudo}> rejoint le thousand sunny !`,
-        `<@${Pseudo}> rejoint les rangs des pourfondeurs de démon !`,
-        `<@${Pseudo}> vient de rejoindre Karasuno !`,
-        `On l'attendait.. <@${Pseudo}> s'installe enfin à  Konoha !`,
-        `<@${Pseudo}> vient de rejoindre Nekoma !`,
-        `L'académie des Ninja accueil un nouvel arrivant.. <@${Pseudo}>`,
-        `<@${Pseudo}> devient Shinigami !`,
-        `<@${Pseudo}> s'enfonce dans les fin-fond de l'abysse...`,
-        `Senku accueil <@${Pseudo}> au village d'Ishigami !`,
-        `Kuchiyose <@${Pseudo}> no Jutsu`,
-        `Le rêve de <@${Pseudo}>... devenir Hokage`,
-        `<@${Pseudo}> intègre l'Akatsuki`,
-        `Après 3 essais.. <@${Pseudo}> passe l'examen Genin ..`,
-        `<@${Pseudo}> passe haut la main son examen Hunter`,
-        `<@${Pseudo}> fait la rencontre du Hokage`,
-        `Ore wa <@${Pseudo}>`,
-        `<@${Pseudo}> nous défi en duel de chef !`,
-        `Un nouveau membre du conseil des dix maître est là .. <@${Pseudo}>`,
-        `Un nouveau membre de l'Akatsuki <@${Pseudo}>`,
-    ];
-
-    if (number == phrases.lenght) {
-        number = Math.floor(Math.random() * Math.floor(3));
-    }
+    let number = Math.floor(Math.random() * Math.floor(phrases.length));
 
     var avatar = member.user.avatarURL()
     const embedBienvenue = new EmbedBuilder()
         .setTitle("Nouveau membre !")
-        .setDescription(phrases[number])
+        .setDescription(phrases[number].replace("*", "<@"+Pseudo+">"))
         .setThumbnail(avatar)
         .setFooter({text:'Hyakanime', iconUrl: avatar})
         .setColor('#35B0FF')

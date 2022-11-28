@@ -1,6 +1,5 @@
 const { REST, Routes, SlashCommandBuilder } = require('discord.js');
 const { token } = require('./config.json');
-
 const commands = [
 
     new SlashCommandBuilder()
@@ -50,7 +49,10 @@ const commands = [
                 .addChoices(
                     { name: 'iOS', value: 'iOS' },
                     { name: 'Android', value: 'Android' },
-                ))
+                    )),
+    new SlashCommandBuilder()
+        .setName("agenda")
+        .setDescription("Fournit l'agenda du jour."),
 
 ]
 
@@ -62,9 +64,7 @@ const rest = new REST({ version: '10' }).setToken(token);
 (async () => {
     try {
         console.log('Started refreshing application (/) commands.');
-
-        await rest.put(Routes.applicationCommands("846683183315288104"), { body: commands });
-
+        await rest.put(Routes.applicationCommands("978823077959983154"), { body: commands });
         console.log('Successfully reloaded application (/) commands.');
     } catch (error) {
         console.error(error);
