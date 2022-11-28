@@ -208,7 +208,6 @@ client.on('interactionCreate', async (interaction) => {
 // message a l'arrivée d'un membre
 client.on('guildMemberAdd',async (member) => {
     let Pseudo = member.user.id;
-    console.log("ca marche");
 
     let number = Math.floor(Math.random() * Math.floor(23));
 
