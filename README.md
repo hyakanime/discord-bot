@@ -29,3 +29,11 @@ Bienvenue sur le répertoire du Bot Discord présent sur le serveur Hyakanime.
 ### Liens utiles
 - [Hyakanime](https://hyakanime.fr)
 - [Documentation Discord.JS](https://discord.js.org/#/docs)
+
+
+
+# Crédits 
+
+| Fonctionnalités  | Auteur                                   |
+| ---------------- | ---------------------------------------- |
+| Agenda           | [Dem0nx309](https://github.com/dem0nx309)|
