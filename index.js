@@ -203,16 +203,24 @@ client.on('interactionCreate', async (interaction) => {
 
             await interaction.deferReply();
             let date = new Date();
+            if (date.getTimezoneOffset() == 0)
+            {
+               var changementTimestamp = 3600000;
+               var changementHeure = 1;
+            }
+            else
+            {
+                var changementTimestamp = 0;
+                var changementHeure = 0;
+            }
             date.setHours(0, 0, 0, 0);
-            timestampAjrd = Date.parse(date);
+            timestampAjrd = Date.parse(date)-changementTimestamp;
             date.setDate(date.getDate() + 1);
-            timestampDemain = Date.parse(date);
-        
+            timestampDemain = Date.parse(date)-changementTimestamp;
             let headersList = {
               Accept: "*/*",
               "User-Agent": "Thunder Client (https://www.thunderclient.com)",
             };
-        
             let response = await fetch(
               "https://api.hyakanime.fr/episode/sortie-hebdo/" +
                 timestampAjrd +
@@ -236,10 +244,11 @@ client.on('interactionCreate', async (interaction) => {
                 nom[b] = result[i].animeTitle;
                 episode[b] = result[i].title;
                 const heure = new Date(result[i].timestamp);
+                
                 if (heure.getMinutes() == 0) {
-                  timestamp[b] = heure.getHours() + "h00" ;
+                  timestamp[b] = heure.getHours()+changementHeure + "h00" ;
                 } else {
-                  timestamp[b] = heure.getHours() + "h" + heure.getMinutes();
+                  timestamp[b] = heure.getHours()+changementHeure + "h" + heure.getMinutes();
                 }
                 b++;
               }
