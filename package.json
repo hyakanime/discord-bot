@@ -1,6 +1,8 @@
 {
   "dependencies": {
     "discord.js": "^14.3.0",
-    "node-fetch": "^2.6.7"
+    "node-cron": "^3.0.2",
+    "node-fetch": "^2.6.7",
+    "twitter-api-v2": "^1.12.9"
   }
 }
