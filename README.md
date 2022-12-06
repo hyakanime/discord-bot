@@ -7,7 +7,7 @@ Bienvenue sur le répertoire du Bot Discord présent sur le serveur Hyakanime.
 </p>
 
 <p align="center">
-  <a href="https://discord.gg/red">
+  <a href="https://discord.gg/Y38Q4pzFMf">
     <img src="https://discordapp.com/api/guilds/805391427680862248/widget.png" alt="Discord Hyakanime">
   </a>
 </p>
