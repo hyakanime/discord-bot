@@ -24,7 +24,10 @@ Bienvenue sur le répertoire du Bot Discord présent sur le serveur Hyakanime.
 # Informations complémentaires 
 
 ### Comment trouver le token de `config.js` ?
-À venir..
+1. Allez sur ce [lien](https://discord.com/developers/applications)
+2. Créez une application
+3. Allez dans Bot puis créez un bot
+4. Récuperer le token pour le config.json
 
 ### Liens utiles
 - [Hyakanime](https://hyakanime.fr)
