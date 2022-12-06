@@ -9,6 +9,12 @@
 	"roleBonPlan" : "948247271290572850",
 	"roleAndroid" : "949360235011776533",
 	"roleGenshin" : "948247223894954074",
-	"roleBeta" : "1036572391201054730"
+	"roleBeta" : "1036572391201054730",
+	"appKey": "",
+	"appSecret": "",
+	"accessToken": "",
+	"accessSecret": "",
+	"twitterid": "id du compte twitter ex Hyakanime : 1345062641002278912",
+	"twitterChannel": "id channel ou seront envoyez les tweets"
 }
 

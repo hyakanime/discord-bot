@@ -1,7 +1,9 @@
 const { Partials, Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
-const { token , roleBeta, channelBeta, channelBienvenue, roleMembre, rolePatchNotes, roleIos, roleAndroid, roleSite , roleBonPlan, roleGenshin} = require('./config.json');
+const { token , roleBeta, channelBeta, channelBienvenue, roleMembre, rolePatchNotes, roleIos, roleAndroid, roleSite , roleBonPlan, roleGenshin, appKey, appSecret, accessToken, accessSecret, twitterid, twitterChannel} = require('./config.json');
 const {phrases} = require('./bienvenue.json');
 const fetch = require("node-fetch");
+const { TwitterApi } = require("twitter-api-v2");
+const cron = require("node-cron");
 const client = new Client(
     {
         intents: [
@@ -380,6 +382,28 @@ client.on('interactionCreate', async (interaction) => {
 });
 
 
+//twitter
+
+(async () => {
+    const clienttwitter = new TwitterApi({
+      appKey: appKey,
+      appSecret: appSecret,
+      accessToken: accessToken,
+      accessSecret: accessSecret,
+    });
+    const userTimeline = await clienttwitter.v1.userTimeline(twitterid, {exclude_replies: true, include_rts: false, });
+    const fetchedTweets = userTimeline.tweets;
+    id_tweet = fetchedTweets[0].id;
+    cron.schedule("*/15 * * * *", async () => {
+      const userTimeline = await clienttwitter.v1.userTimeline(twitterid, {exclude_replies: true, include_rts: false,});
+      const fetchedTweets = userTimeline.tweets;
+      if (fetchedTweets[0].id != id_tweet) {
+        const channel = client.channels.cache.get(twitterChannel);
+        channel.send("https://twitter.com/Hyakanime/status/" + fetchedTweets[0].id_str);
+        id_tweet = fetchedTweets[0].id;
+      }
+    });
+  })();
 
 
 client.login(token);
