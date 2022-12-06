@@ -40,6 +40,7 @@ Bienvenue sur le répertoire du Bot Discord présent sur le serveur Hyakanime.
 ### Liens utiles
 - [Hyakanime](https://hyakanime.fr)
 - [Documentation Discord.JS](https://discord.js.org/#/docs)
+- [Documentation Twitter Api](https://developer.twitter.com/en/docs/twitter-api)
 
 
 
