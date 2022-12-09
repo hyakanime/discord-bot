@@ -119,22 +119,24 @@ client.on('interactionCreate', async (interaction) => {
                 {
                     url = url.substr(0, index)
                 }
-                    if (url.indexOf('amazon.fr')) {
+                var pays = url.substr(url.indexOf('amazon')+7,2);
+                switch (pays){
+                    case 'fr':
                         urlFinal = url + "&tag=hyakanime03-21";
-                    }
-                    else if (url.indexOf('amazon.it')) {
+                        break;
+                    case 'it':
                         urlFinal = url + "&tag=hyakanime0b-21";
-                    }
-                    else if (url.indexOf('amazon.es')) {
+                        break;
+                    case 'es':
                         urlFinal = url + "&tag=hyakanime05-21";
-                    }
-                    else if (url.indexOf('amazon.de')) {
+                        break;
+                    case 'de':
                         urlFinal = url + "&tag=hyakanime07-21";
-                    }
-                    else if (url.indexOf('amazon.uk')) {
+                        break;
+                    case 'uk':
                         urlFinal = url + "&tag=hyakanime095-21";
-                    }
-                    else {
+                        break;
+                    default :
                         urlFinal = url + "&tag=hyakanime03-21";
                     }
 
