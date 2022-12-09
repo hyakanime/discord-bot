@@ -290,14 +290,14 @@ client.on('interactionCreate', async (interaction) => {
               "https://api.hyakanime.fr/user/profile-information/" + pseudo,
               {
                 method: "GET",
-                headers: headersList,
+                headers: headersListUser,
               }
             );
             let dataUser = await responseUser.text();
             var result = JSON.parse(dataUser);
             var timestamp = result.createdAt;
             let date1 = new Date(timestamp * 1);
-            let headersList2 = {
+            let headersListUser2 = {
               Accept: "*/*",
               "User-Agent": "Thunder Client (https://www.thunderclient.com)",
             };
@@ -306,7 +306,7 @@ client.on('interactionCreate', async (interaction) => {
               "https://api.hyakanime.fr/progress/read/" + pseudo,
               {
                 method: "GET",
-                headers: headersList2,
+                headers: headersListUser2,
               }
             );
         
