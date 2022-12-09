@@ -115,7 +115,10 @@ client.on('interactionCreate', async (interaction) => {
 
                 var urlFinal = ""
                 var index = url.indexOf("tag");
-                if (index === -1) {
+                if (url.indexOf("tag")!= -1)
+                {
+                    url = url.substr(0, index)
+                }
                     if (url.indexOf('amazon.fr')) {
                         urlFinal = url + "&tag=hyakanime03-21";
                     }
@@ -134,27 +137,6 @@ client.on('interactionCreate', async (interaction) => {
                     else {
                         urlFinal = url + "&tag=hyakanime03-21";
                     }
-                }
-                else {
-                    if (url.indexOf('amazon.fr')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime03-21";
-                    }
-                    else if (url.indexOf('amazon.it')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime0b-21";
-                    }
-                    else if (url.indexOf('amazon.es')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime05-21";
-                    }
-                    else if (url.indexOf('amazon.de')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime07-21";
-                    }
-                    else if (url.indexOf('amazon.uk')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime095-21";
-                    }
-                    else {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime03-21";
-                    }
-                }
 
                 await interaction.reply({ content: "Voici le lien affilié \n" + urlFinal + "\nMerci de soutenir Hyakanime 💙", ephemeral: true });
 
