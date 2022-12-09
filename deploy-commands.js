@@ -51,6 +51,15 @@ const commands = [
                     { name: 'Android', value: 'Android' },
                     )),
     new SlashCommandBuilder()
+    .setName("user")
+    .setDescription("Fournit des informations sur l’utilisateur.")
+    .addStringOption((option) =>
+      option
+        .setName("pseudo")
+        .setRequired(true)
+        .setDescription("Votre pseudo hyakanime")
+    ),
+    new SlashCommandBuilder()
         .setName("agenda")
         .setDescription("Fournit l'agenda du jour."),
 
