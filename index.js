@@ -277,6 +277,186 @@ client.on('interactionCreate', async (interaction) => {
               
             await interaction.editReply({ embeds: [exampleEmbed] });
             break;
+
+        case 'user':
+            await interaction.deferReply();
+            const pseudo = interaction.options.getString("pseudo");
+            let headersListUser = {
+              Accept: "*/*",
+              "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+            };
+        
+            let responseUser = await fetch(
+              "https://api.hyakanime.fr/user/profile-information/" + pseudo,
+              {
+                method: "GET",
+                headers: headersList,
+              }
+            );
+            let dataUser = await responseUser.text();
+            var result = JSON.parse(dataUser);
+            var timestamp = result.createdAt;
+            let date1 = new Date(timestamp * 1);
+            let headersList2 = {
+              Accept: "*/*",
+              "User-Agent": "Thunder Client (https://www.thunderclient.com)",
+            };
+        
+            let response2 = await fetch(
+              "https://api.hyakanime.fr/progress/read/" + pseudo,
+              {
+                method: "GET",
+                headers: headersList2,
+              }
+            );
+        
+            let data2 = await response2.text();
+            var result2 = JSON.parse(data2);
+            var premium = "";
+            var episodes = result2.length;
+            var addition = 0;
+            var i = 0;
+            var revisionage = 0;
+            var mois = date1.getMonth() + 1;
+            while (i < episodes) {
+              addition += result2[i].progression;
+              if (result2[i].rewatch != undefined) {
+                revisionage = revisionage + result2[i].rewatch * result2[i].progression;
+              }
+              i++;
+            }
+            if (result.isPremium == true) {
+              premium = "★";
+            }
+            var couleur;
+            switch (result.themeColor) {
+              case 1:
+                couleur = 0x0080d1;
+                break;
+              case 2:
+                couleur = 0xffceb1;
+                break;
+              case 3:
+                couleur = 0xffed92;
+                break;
+              case 4:
+                couleur = 0xff93c5;
+                break;
+              case 5:
+                couleur = 0xfc897e;
+                break;
+              case 6:
+                couleur = 0xff82a8;
+                break;
+              case 7:
+                couleur = 0x79e3a4;
+                break;
+              case 8:
+                couleur = 0x344556;
+                break;
+              case 9:
+                couleur = 0x79d0f2;
+                break;
+              case 10:
+                couleur = 0xff58e4;
+                break;
+              case 11:
+                couleur = 0x9794f2;
+                break;
+              case 12:
+                couleur = 0x58ffb9;
+                break;
+              case 13:
+                couleur = 0xfe8189;
+                break;
+              case 14:
+                couleur = 0xf7ce4b;
+                break;
+              case 15:
+                couleur = 0xadd4f6;
+                break;
+              case 16:
+                couleur = 0xf2b3d6;
+                break;
+              case 17:
+                couleur = 0xffa8a8;
+                break;
+              case 18:
+                couleur = 0x1d8ff2;
+                break;
+              case 19:
+                couleur = 0xff5fac;
+                break;
+              case 20:
+                couleur = 0x15e3e3;
+                break;
+              case 21:
+                couleur = 0x91b9fe;
+                break;
+              case 22:
+                couleur = 0xc1e5ff;
+                break;
+              case 23:
+                couleur = 0xf0a3ff;
+                break;
+              case 24:
+                couleur = 0x294abf;
+                break;
+              case 25:
+                couleur = 0x3164bf;
+                break;
+              case 25:
+                couleur = 0x6e8ffb;
+                break;
+              case 26:
+                couleur = 0x8171d1;
+                break;
+              default:
+                couleur = 0x0080d1;
+            }
+            if (result.biographie[0] == undefined) {
+              result.biographie = pseudo + " n'a pas de biographie";
+            }
+            if (result.username != undefined) {
+              const exampleEmbed = new EmbedBuilder()
+                .setColor(couleur)
+                .setTitle(result.username + " " + premium)
+                .setURL("https://hyakanime.fr/profile/" + pseudo)
+                .setAuthor({
+                  name: "Hyakanime",
+                  iconURL:
+                    "https://www.hyakanime.fr/static/media/appLogo.7fac0ec4359bda8ccf0f.png",
+                  url: "https://hyakanime.fr",
+                })
+                .setDescription(result.biographie)
+                .setThumbnail(result.photoURL)
+                .addFields(
+                  { name: "TITRE AJOUTÉS", value: "" + episodes, inline: true },
+                  { name: "ÉPISODES VUS", value: "" + addition, inline: true },
+                  { name: "ÉPISODES REWATCH", value: "" + revisionage, inline: true }
+                )
+                .setTimestamp()
+                .setFooter({
+                  text:
+                    "Compte créer le " +
+                    date1.getDate() +
+                    "/" +
+                    mois +
+                    "/" +
+                    date1.getFullYear(),
+                });
+        
+              await interaction.editReply({ embeds: [exampleEmbed] });
+            } else {
+              await interaction.editReply({
+                content:
+                  "Le pseudo n'est pas correct, veuillez vérifier si vous l'avez bien écrit et bien mis les majs",
+                ephemeral: true,
+              });
+            }
+          
+        
+        break;
     }
 
 
