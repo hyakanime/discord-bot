@@ -432,8 +432,11 @@ client.on('interactionCreate', async (interaction) => {
                 .setThumbnail(result.photoURL)
                 .addFields(
                   { name: "TITRE AJOUTÉS", value: "" + episodes, inline: true },
+                  { name: "\u200b", value: "\u200b",inline: true },
                   { name: "ÉPISODES VUS", value: "" + addition, inline: true },
-                  { name: "ÉPISODES REWATCH", value: "" + revisionage, inline: true }
+                { name: "TITRE REWATCH", value: "" + revisionage,inline: true },
+                { name: "\u200b", value: "\u200b",inline: true },
+                { name: "ÉPISODES REWATCH", value: "" + revisionage, inline: true}
                 )
                 .setTimestamp()
                 .setFooter({
