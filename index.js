@@ -1,4 +1,4 @@
-const { Partials, Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const { Partials, Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, AttachmentBuilder, } = require('discord.js');
 const { token , roleBeta, channelBeta, channelBienvenue, roleMembre, rolePatchNotes, roleIos, roleAndroid, roleSite , roleBonPlan, roleGenshin, appKey, appSecret, accessToken, accessSecret, twitterid, twitterChannel} = require('./config.json');
 const {phrases} = require('./bienvenue.json');
 const fetch = require("node-fetch");
@@ -73,11 +73,11 @@ client.on('interactionCreate', async (interaction) => {
 
 
         case 'avisdesastreux':
-
+            const file = new AttachmentBuilder('https://i.imgur.com/NzAL3dG.mp4');
             const embed4 = new EmbedBuilder()
                 .setAuthor({ name: "🚨 ALERTE AVIS DÉSASTREUX 🚨" })
                 .setColor('#fa2525')
-            await interaction.reply({ content: "https://i.imgur.com/NzAL3dG.mp4", embeds: [embed4] });
+            await interaction.reply({ files: [file], embeds: [embed4] });
 
             break;
 
@@ -115,46 +115,30 @@ client.on('interactionCreate', async (interaction) => {
 
                 var urlFinal = ""
                 var index = url.indexOf("tag");
-                if (index === -1) {
-                    if (url.indexOf('amazon.fr')) {
+                if (url.indexOf("tag")!= -1)
+                {
+                    url = url.substr(0, index)
+                }
+                var pays = url.substr(url.indexOf('amazon')+7,2);
+                switch (pays){
+                    case 'fr':
                         urlFinal = url + "&tag=hyakanime03-21";
-                    }
-                    else if (url.indexOf('amazon.it')) {
+                        break;
+                    case 'it':
                         urlFinal = url + "&tag=hyakanime0b-21";
-                    }
-                    else if (url.indexOf('amazon.es')) {
+                        break;
+                    case 'es':
                         urlFinal = url + "&tag=hyakanime05-21";
-                    }
-                    else if (url.indexOf('amazon.de')) {
+                        break;
+                    case 'de':
                         urlFinal = url + "&tag=hyakanime07-21";
-                    }
-                    else if (url.indexOf('amazon.uk')) {
+                        break;
+                    case 'uk':
                         urlFinal = url + "&tag=hyakanime095-21";
-                    }
-                    else {
+                        break;
+                    default :
                         urlFinal = url + "&tag=hyakanime03-21";
                     }
-                }
-                else {
-                    if (url.indexOf('amazon.fr')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime03-21";
-                    }
-                    else if (url.indexOf('amazon.it')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime0b-21";
-                    }
-                    else if (url.indexOf('amazon.es')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime05-21";
-                    }
-                    else if (url.indexOf('amazon.de')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime07-21";
-                    }
-                    else if (url.indexOf('amazon.uk')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime095-21";
-                    }
-                    else {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime03-21";
-                    }
-                }
 
                 await interaction.reply({ content: "Voici le lien affilié \n" + urlFinal + "\nMerci de soutenir Hyakanime 💙", ephemeral: true });
 
@@ -524,39 +508,81 @@ client.on('interactionCreate', async (interaction) => {
     let role = {};
     switch (interaction.customId) {
         case 'verifyButton':
-            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&845340817828479026>', ephemeral: true });
             role = interaction.guild.roles.cache.find(role => role.id == roleMembre);
+            if(interaction.member.roles.cache.find(r => r.id === roleMembre)){
+                interaction.reply({ content: 'Le rôle <@&'+roleMembre+'> est bien retiré', ephemeral: true });
+                await interaction.member.roles.remove(role);
+            }
+            else{
+            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&'+roleMembre+'>', ephemeral: true });
             await interaction.member.roles.add(role);
+            }
             break;
         case 'role-patchnote':
-            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&1012649092343668857>', ephemeral: true });
             role = interaction.guild.roles.cache.find(role => role.id == rolePatchNotes);
+            if(interaction.member.roles.cache.find(r => r.id === rolePatchNotes)){
+                interaction.reply({ content: 'Le rôle <@&'+rolePatchNotes+'> est bien retiré', ephemeral: true });
+                await interaction.member.roles.remove(role);
+            }
+            else{
+            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&'+rolePatchNotes+'>', ephemeral: true });
             await interaction.member.roles.add(role);
+            }
             break;
         case 'role-ios':
-            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&949075801637281812>', ephemeral: true });
             role = interaction.guild.roles.cache.find(role => role.id == roleIos);
+            if(interaction.member.roles.cache.find(r => r.id === roleIos)){
+                interaction.reply({ content: 'Le rôle <@&'+roleIos+'> est bien retiré', ephemeral: true });
+                await interaction.member.roles.remove(role);
+            }
+            else{
+            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&'+roleIos+'>', ephemeral: true });
             await interaction.member.roles.add(role);
+            }
             break;
         case 'role-android':
-            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&949360235011776533>', ephemeral: true });
             role = interaction.guild.roles.cache.find(role => role.id == roleAndroid);
+            if(interaction.member.roles.cache.find(r => r.id === roleAndroid)){
+                interaction.reply({ content: 'Le rôle <@&'+roleAndroid+'> est bien retiré', ephemeral: true });
+                await interaction.member.roles.remove(role);
+            }
+            else{
+            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&'+roleAndroid+'>', ephemeral: true });
             await interaction.member.roles.add(role);
+            }
             break;
         case 'role-siteweb':
-            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&949075846113669131>', ephemeral: true });
             role = interaction.guild.roles.cache.find(role => role.id == roleSite);
+            if(interaction.member.roles.cache.find(r => r.id === roleSite)){
+                interaction.reply({ content: 'Le rôle <@&'+roleSite+'> est bien retiré', ephemeral: true });
+                await interaction.member.roles.remove(role);
+            }
+            else{
+            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&'+roleSite+'>', ephemeral: true });
             await interaction.member.roles.add(role);
+            }
             break;
         case 'role-bonplan':
-            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&948247271290572850>', ephemeral: true });
             role = interaction.guild.roles.cache.find(role => role.id == roleBonPlan);
+            if(interaction.member.roles.cache.find(r => r.id === roleBonPlan)){
+                interaction.reply({ content: 'Le rôle <@&'+roleBonPlan+'> est bien retiré', ephemeral: true });
+                await interaction.member.roles.remove(role);
+            }
+            else{
+            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&'+roleBonPlan+'>', ephemeral: true });
             await interaction.member.roles.add(role);
+            }
             break;
         case 'role-genshin':
-            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&948247223894954074>', ephemeral: true });
             role = interaction.guild.roles.cache.find(role => role.id == roleGenshin);
+            if(interaction.member.roles.cache.find(r => r.id === roleGenshin)){
+                interaction.reply({ content: 'Le rôle <@&'+roleGenshin+'> est bien retiré', ephemeral: true });
+                await interaction.member.roles.remove(role);
+            }
+            else{
+            interaction.reply({ content: 'Vous venez de recevoir le rôle <@&'+roleGenshin+'>', ephemeral: true });
             await interaction.member.roles.add(role);
+            }
             break;
         default:
             interaction.reply({ content: 'Une erreur est survenue, contactez <@&245604480278593537>', ephemeral: true });
