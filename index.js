@@ -1,4 +1,4 @@
-const { Partials, Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
+const { Partials, Client, GatewayIntentBits, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, AttachmentBuilder, } = require('discord.js');
 const { token , roleBeta, channelBeta, channelBienvenue, roleMembre, rolePatchNotes, roleIos, roleAndroid, roleSite , roleBonPlan, roleGenshin, appKey, appSecret, accessToken, accessSecret, twitterid, twitterChannel} = require('./config.json');
 const {phrases} = require('./bienvenue.json');
 const fetch = require("node-fetch");
@@ -73,11 +73,11 @@ client.on('interactionCreate', async (interaction) => {
 
 
         case 'avisdesastreux':
-
+            const file = new AttachmentBuilder('https://i.imgur.com/NzAL3dG.mp4');
             const embed4 = new EmbedBuilder()
                 .setAuthor({ name: "🚨 ALERTE AVIS DÉSASTREUX 🚨" })
                 .setColor('#fa2525')
-            await interaction.reply({ content: "https://i.imgur.com/NzAL3dG.mp4", embeds: [embed4] });
+            await interaction.reply({ files: [file], embeds: [embed4] });
 
             break;
 
