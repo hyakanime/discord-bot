@@ -115,46 +115,30 @@ client.on('interactionCreate', async (interaction) => {
 
                 var urlFinal = ""
                 var index = url.indexOf("tag");
-                if (index === -1) {
-                    if (url.indexOf('amazon.fr')) {
+                if (url.indexOf("tag")!= -1)
+                {
+                    url = url.substr(0, index)
+                }
+                var pays = url.substr(url.indexOf('amazon')+7,2);
+                switch (pays){
+                    case 'fr':
                         urlFinal = url + "&tag=hyakanime03-21";
-                    }
-                    else if (url.indexOf('amazon.it')) {
+                        break;
+                    case 'it':
                         urlFinal = url + "&tag=hyakanime0b-21";
-                    }
-                    else if (url.indexOf('amazon.es')) {
+                        break;
+                    case 'es':
                         urlFinal = url + "&tag=hyakanime05-21";
-                    }
-                    else if (url.indexOf('amazon.de')) {
+                        break;
+                    case 'de':
                         urlFinal = url + "&tag=hyakanime07-21";
-                    }
-                    else if (url.indexOf('amazon.uk')) {
+                        break;
+                    case 'uk':
                         urlFinal = url + "&tag=hyakanime095-21";
-                    }
-                    else {
+                        break;
+                    default :
                         urlFinal = url + "&tag=hyakanime03-21";
                     }
-                }
-                else {
-                    if (url.indexOf('amazon.fr')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime03-21";
-                    }
-                    else if (url.indexOf('amazon.it')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime0b-21";
-                    }
-                    else if (url.indexOf('amazon.es')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime05-21";
-                    }
-                    else if (url.indexOf('amazon.de')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime07-21";
-                    }
-                    else if (url.indexOf('amazon.uk')) {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime095-21";
-                    }
-                    else {
-                        urlFinal = url.substr(0, index) + "&tag=hyakanime03-21";
-                    }
-                }
 
                 await interaction.reply({ content: "Voici le lien affilié \n" + urlFinal + "\nMerci de soutenir Hyakanime 💙", ephemeral: true });
 
