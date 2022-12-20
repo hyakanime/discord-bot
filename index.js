@@ -279,14 +279,17 @@ client.on('interactionCreate', async (interaction) => {
             var addition = 0;
             var i = 0;
             var revisionageEpisode = 0;
+            var revisionageAnime = 0;
             var mois = date1.getMonth() + 1;
             while (i < episodes) {
               addition += resultatProgression[i].progression;
               if (resultatProgression[i].rewatch != undefined) {
                 revisionageEpisode = revisionageEpisode + resultatProgression[i].rewatch * resultatProgression[i].progression;
+                revisionageAnime = revisionageAnime + resultatProgression[i].rewatch;
               }
               i++;
             }
+            console.log(revisionageAnime)
             if (result.isPremium == true) {
               premium = "★";
             }
@@ -310,7 +313,7 @@ client.on('interactionCreate', async (interaction) => {
                   { name: "TITRE AJOUTÉS", value: "" + episodes, inline: true },
                   { name: "\u200b", value: "\u200b",inline: true },
                   { name: "ÉPISODES VUS", value: "" + addition, inline: true },
-                { name: "TITRE REWATCH", value: "" + revisionageEpisode,inline: true },
+                { name: "TITRE REWATCH", value: "" + revisionageAnime,inline: true },
                 { name: "\u200b", value: "\u200b",inline: true },
                 { name: "ÉPISODES REWATCH", value: "" + revisionageEpisode, inline: true}
                 )
