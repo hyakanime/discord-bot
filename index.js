@@ -265,47 +265,25 @@ client.on('interactionCreate', async (interaction) => {
         case 'user':
             await interaction.deferReply();
             const pseudo = interaction.options.getString("pseudo");
-            let headersListUser = {
-              Accept: "*/*",
-              "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-            };
         
-            let responseUser = await fetch(
-              "https://api.hyakanime.fr/user/profile-information/" + pseudo,
-              {
-                method: "GET",
-                headers: headersListUser,
-              }
-            );
+            let responseUser = await fetch("https://api.hyakanime.fr/user/profile-information/" + pseudo);
             let dataUser = await responseUser.text();
             var result = JSON.parse(dataUser);
             var timestamp = result.createdAt;
             let date1 = new Date(timestamp * 1);
-            let headersListUser2 = {
-              Accept: "*/*",
-              "User-Agent": "Thunder Client (https://www.thunderclient.com)",
-            };
-        
-            let response2 = await fetch(
-              "https://api.hyakanime.fr/progress/read/" + pseudo,
-              {
-                method: "GET",
-                headers: headersListUser2,
-              }
-            );
-        
+            let response2 = await fetch("https://api.hyakanime.fr/progress/read/" + pseudo);
             let data2 = await response2.text();
-            var result2 = JSON.parse(data2);
+            var resultatProgression = JSON.parse(data2);
             var premium = "";
-            var episodes = result2.length;
+            var episodes = resultatProgression.length;
             var addition = 0;
             var i = 0;
-            var revisionage = 0;
+            var revisionageEpisode = 0;
             var mois = date1.getMonth() + 1;
             while (i < episodes) {
-              addition += result2[i].progression;
-              if (result2[i].rewatch != undefined) {
-                revisionage = revisionage + result2[i].rewatch * result2[i].progression;
+              addition += resultatProgression[i].progression;
+              if (resultatProgression[i].rewatch != undefined) {
+                revisionageEpisode = revisionageEpisode + resultatProgression[i].rewatch * resultatProgression[i].progression;
               }
               i++;
             }
@@ -402,7 +380,7 @@ client.on('interactionCreate', async (interaction) => {
               result.biographie = pseudo + " n'a pas de biographie";
             }
             if (result.username != undefined) {
-              const exampleEmbed = new EmbedBuilder()
+              const userEmbed = new EmbedBuilder()
                 .setColor(couleur)
                 .setTitle(result.username + " " + premium)
                 .setURL("https://hyakanime.fr/profile/" + pseudo)
@@ -418,9 +396,9 @@ client.on('interactionCreate', async (interaction) => {
                   { name: "TITRE AJOUTÉS", value: "" + episodes, inline: true },
                   { name: "\u200b", value: "\u200b",inline: true },
                   { name: "ÉPISODES VUS", value: "" + addition, inline: true },
-                { name: "TITRE REWATCH", value: "" + revisionage,inline: true },
+                { name: "TITRE REWATCH", value: "" + revisionageEpisode,inline: true },
                 { name: "\u200b", value: "\u200b",inline: true },
-                { name: "ÉPISODES REWATCH", value: "" + revisionage, inline: true}
+                { name: "ÉPISODES REWATCH", value: "" + revisionageEpisode, inline: true}
                 )
                 .setTimestamp()
                 .setFooter({
@@ -433,7 +411,7 @@ client.on('interactionCreate', async (interaction) => {
                     date1.getFullYear(),
                 });
         
-              await interaction.editReply({ embeds: [exampleEmbed] });
+              await interaction.editReply({ embeds: [userEmbed] });
             } else {
               await interaction.editReply({
                 content:
