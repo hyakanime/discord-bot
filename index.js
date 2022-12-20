@@ -269,6 +269,7 @@ client.on('interactionCreate', async (interaction) => {
             let responseUser = await fetch("https://api.hyakanime.fr/user/profile-information/" + pseudo);
             let dataUser = await responseUser.text();
             var result = JSON.parse(dataUser);
+            if (result.username != undefined) {
             var timestamp = result.createdAt;
             let date1 = new Date(timestamp * 1);
             let response2 = await fetch("https://api.hyakanime.fr/progress/read/" + pseudo);
@@ -289,14 +290,12 @@ client.on('interactionCreate', async (interaction) => {
               }
               i++;
             }
-            console.log(revisionageAnime)
             if (result.isPremium == true) {
               premium = "★";
             }
             if (result.biographie[0] == undefined) {
               result.biographie = pseudo + " n'a pas de biographie";
             }
-            if (result.username != undefined) {
               const userEmbed = new EmbedBuilder()
                 .setColor(0x0099ff)
                 .setTitle(result.username + " " + premium)
