@@ -149,7 +149,7 @@ client.on('interactionCreate', async (interaction) => {
 
             break;
         
-        case 'delete':
+       case 'delete':
           if (interaction.user.id == '266172334010925056' || interaction.user.id == '245604480278593537') {
           var nombre = interaction.options.get("nombre").value;
           if (nombre > 100)
@@ -165,6 +165,12 @@ client.on('interactionCreate', async (interaction) => {
           }
         }
         }
+      
+        else
+        {
+          interaction.reply({content: "Vous n'avez pas les permissions pour effectuer la commande", ephemeral: true});
+        }
+        break;
 
         case 'beta':
 
