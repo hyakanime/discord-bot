@@ -508,5 +508,5 @@ client.on('interactionCreate', async (interaction) => {
     });
   })();
 
-
+client.on('error', console.error);
 client.login(token);
