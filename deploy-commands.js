@@ -51,6 +51,15 @@ const commands = [
                     { name: 'Android', value: 'Android' },
                     )),
     new SlashCommandBuilder()
+    .setName("delete")
+    .setDescription("Supprime X messages (max 100)")
+    .addStringOption((option) =>
+      option
+        .setName("nombre")
+        .setRequired(true)
+        .setDescription("Le nombre de messages déstiné a être supprimé")
+            ),
+    new SlashCommandBuilder()
     .setName("user")
     .setDescription("Fournit des informations sur l’utilisateur.")
     .addStringOption((option) =>
