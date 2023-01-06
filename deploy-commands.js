@@ -58,6 +58,15 @@ const commands = [
         .setName("nombre")
         .setRequired(true)
         .setDescription("Le nombre de messages déstiné a être supprimé")
+            ),
+    new SlashCommandBuilder()
+    .setName("user")
+    .setDescription("Fournit des informations sur l’utilisateur.")
+    .addStringOption((option) =>
+      option
+        .setName("pseudo")
+        .setRequired(true)
+        .setDescription("Votre pseudo hyakanime")
     ),
     new SlashCommandBuilder()
         .setName("agenda")

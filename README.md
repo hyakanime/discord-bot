@@ -50,3 +50,4 @@ Bienvenue sur le répertoire du Bot Discord présent sur le serveur Hyakanime.
 | ---------------- | ---------------------------------------- |
 | Agenda           | [Dem0nx309](https://github.com/dem0nx309)|
 | Twitter          | [Dem0nx309](https://github.com/dem0nx309)|
+| User             | [Dem0nx309](https://github.com/dem0nx309)|
