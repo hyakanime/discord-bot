@@ -1,4 +1,4 @@
-/*const { Events } = require('discord.js');
+const { Events } = require('discord.js');
 
 module.exports = {
 	name: Events.InteractionCreate,
@@ -20,4 +20,4 @@ module.exports = {
             await interaction.reply({ content: 'Il y a eu une erreur lors de l’exécution de cette commande !', ephemeral: true });
 		}
 	},
-};*/
+};
