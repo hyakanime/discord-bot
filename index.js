@@ -47,23 +47,31 @@ client.login(token);
 
 //Twitter
 
+const clienttwitter = new TwitterApi({
+  appKey: appKey,
+  appSecret: appSecret,
+  accessToken: accessToken,
+  accessSecret: accessSecret,
+});
+
+async function fetchTweets() {
+  const userTimeline = await clienttwitter.v1.userTimeline(twitterid, {
+    exclude_replies: true,
+    include_rts: false,
+  });
+  return userTimeline.tweets;
+}
+
+let id_tweet;
 (async () => {
-    const clienttwitter = new TwitterApi({
-      appKey: appKey,
-      appSecret: appSecret,
-      accessToken: accessToken,
-      accessSecret: accessSecret,
-    });
-    const userTimeline = await clienttwitter.v1.userTimeline(twitterid, {exclude_replies: true, include_rts: false, });
-    const fetchedTweets = userTimeline.tweets;
-    id_tweet = fetchedTweets[0].id;
-    cron.schedule("*/15 * * * *", async () => {
-      const userTimeline = await clienttwitter.v1.userTimeline(twitterid, {exclude_replies: true, include_rts: false,});
-      const fetchedTweets = userTimeline.tweets;
-      if (fetchedTweets[0].id != id_tweet) {
-        const channel = client.channels.cache.get(twitterChannel);
-        channel.send("https://twitter.com/Hyakanime/status/" + fetchedTweets[0].id_str);
-        id_tweet = fetchedTweets[0].id;
-      }
-    });
-  })();
+  const fetchedTweets = await fetchTweets();
+  id_tweet = fetchedTweets[0].id;
+  cron.schedule("*/3 * * * *", async () => {
+    const fetchedTweets = await fetchTweets();
+    if (fetchedTweets[0].id !== id_tweet) {
+      const channel = client.channels.cache.get(twitterChannel);
+      channel.send(`https://twitter.com/Hyakanime/status/${fetchedTweets[0].id_str}`);
+      id_tweet = fetchedTweets[0].id;
+    }
+  });
+})();
