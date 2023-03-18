@@ -102,7 +102,7 @@ module.exports = {
             }
             break;
         default:
-            interaction.reply({ content: 'Une erreur est survenue, contactez <@&245604480278593537>', ephemeral: true });
+            interaction.reply({ content: 'Une erreur est survenue, contactez <@245604480278593537> si cela persiste.', ephemeral: true });
             break;
             
         }
