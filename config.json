@@ -1,5 +1,6 @@
 {
 	"token": "REMPLIR-AVEC-LE-TOKEN-DU-BOT",
+	"applicationId" : "REMPLIR-AVEC-L-APPLICATION-ID-DU-BOT",
 	"channelBeta": "1036762035645599755",
 	"channelBienvenue": "846317312327811092",
 	"roleMembre" : "845340817828479026",
