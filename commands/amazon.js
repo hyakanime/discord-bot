@@ -14,32 +14,22 @@ module.exports = {
     ),
   async execute(interaction) {
     var url = interaction.options.get("lien").value;
-    if (url.indexOf("http") >= 0 && url.indexOf(".") >= 0) {
-      var urlFinal = "";
-      var index = url.indexOf("tag");
-      if (url.indexOf("tag") != -1) {
-        url = url.substr(0, index);
-      }
-      var pays = url.substr(url.indexOf("amazon") + 7, 2);
-      switch (pays) {
-        case "fr":
-          urlFinal = url + "&tag=hyakanime03-21";
-          break;
-        case "it":
-          urlFinal = url + "&tag=hyakanime0b-21";
-          break;
-        case "es":
-          urlFinal = url + "&tag=hyakanime05-21";
-          break;
-        case "de":
-          urlFinal = url + "&tag=hyakanime07-21";
-          break;
-        case "uk":
-          urlFinal = url + "&tag=hyakanime095-21";
-          break;
-        default:
-          urlFinal = url + "&tag=hyakanime03-21";
-      }
+    if (url.startsWith("http") && url.includes(".")) {
+      const tagIndex = url.indexOf("tag");
+      const baseUrl = tagIndex !== -1 ? url.substring(0, tagIndex) : url;
+      const countryCodeIndex = baseUrl.indexOf("amazon.") + 7;
+      const countryCode = baseUrl.substr(countryCodeIndex, 2);
+
+      const tags = {
+        fr: "hyakanime03-21",
+        it: "hyakanime0b-21",
+        es: "hyakanime05-21",
+        de: "hyakanime07-21",
+        uk: "hyakanime095-21",
+      };
+
+      const tag = tags[countryCode] || "hyakanime03-21";
+      const urlFinal = `${baseUrl}&tag=${tag}`;
 
       await interaction.reply({
         content:
