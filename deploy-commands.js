@@ -1,91 +1,34 @@
-const { REST, Routes, SlashCommandBuilder } = require('discord.js');
-const { token } = require('./config.json');
-const commands = [
+const { REST, Routes } = require('discord.js');
+const { token , applicationId } = require('./config.json');
+const fs = require('node:fs');
 
-    new SlashCommandBuilder()
-        .setName('pageblanche')
-        .setDescription('Explication sur les pages blanche.'),
+const commands = [];
+// Grab all the command files from the commands directory you created earlier
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 
-    new SlashCommandBuilder()
-        .setName('embed')
-        .setDescription('Explication sur le raffraichissement des images présentes dans les embeds.'),
+// Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+	commands.push(command.data.toJSON());
+}
 
-    new SlashCommandBuilder()
-        .setName('down')
-        .setDescription('Plus rien ne marche ? Informez tout le monde comme ça !'),
-
-    new SlashCommandBuilder()
-        .setName('avisdesastreux')
-        .setDescription('Un avis posté qui est désastreux ? Voici la solution !'),
-
-
-    new SlashCommandBuilder()
-        .setName('amazon')
-        .setDescription('Créer un lien d\'affiliation avec Amazon')
-        .addStringOption(option =>
-            option.setName('lien')
-                .setDescription('Exemple: https://www.amazon.fr/Calendrier-2023-Chainsaw-Man-XXX/dp/2820345018')
-                .setRequired(true)),
-
-    new SlashCommandBuilder()
-        .setName('fnac')
-        .setDescription('Créer un lien d\'affiliation avec la FNAC')
-        .addStringOption(option =>
-            option.setName('lien')
-                .setDescription('Exemple: https://livre.fnac.com/a14859038/Spy-x-Family-Tome-1-Spy-x-Family-Tatsuya-Endo')
-                .setRequired(true)),
-
-    new SlashCommandBuilder()
-        .setName('beta')
-        .setDescription('Inscription à la bêta de l\'application')
-        .addStringOption(option =>
-            option.setName('email')
-                .setDescription('Email associé à votre compte Apple ou Google')
-                .setRequired(true))
-        .addStringOption(option =>
-            option.setName('système')
-                .setDescription('OS de votre téléphone')
-                .setRequired(true)
-                .addChoices(
-                    { name: 'iOS', value: 'iOS' },
-                    { name: 'Android', value: 'Android' },
-                    )),
-    new SlashCommandBuilder()
-    .setName("delete")
-    .setDescription("Supprime X messages (max 100)")
-    .addStringOption((option) =>
-      option
-        .setName("nombre")
-        .setRequired(true)
-        .setDescription("Le nombre de messages déstiné a être supprimé")
-            ),
-    new SlashCommandBuilder()
-    .setName("user")
-    .setDescription("Fournit des informations sur l’utilisateur.")
-    .addStringOption((option) =>
-      option
-        .setName("pseudo")
-        .setRequired(true)
-        .setDescription("Votre pseudo hyakanime")
-    ),
-    new SlashCommandBuilder()
-        .setName("agenda")
-        .setDescription("Fournit l'agenda du jour."),
-
-]
-
-    .map(command => command.toJSON());
-
-
+// Construct and prepare an instance of the REST module
 const rest = new REST({ version: '10' }).setToken(token);
 
+// and deploy your commands!
 (async () => {
-    try {
-        console.log('Started refreshing application (/) commands.');
-        await rest.put(Routes.applicationCommands("978823077959983154"), { body: commands });
-        console.log('Successfully reloaded application (/) commands.');
-    } catch (error) {
-        console.error(error);
-    }
-})();
+	try {
+		console.log(`Started refreshing ${commands.length} application (/) commands.`);
 
+		// The put method is used to fully refresh all commands in the guild with the current set
+		const data = await rest.put(
+			Routes.applicationCommands(applicationId),
+			{ body: commands },
+		);
+
+		console.log(`Successfully reloaded ${data.length} application (/) commands.`);
+	} catch (error) {
+		// And of course, make sure you catch and log any errors!
+		console.error(error);
+	}
+})();
