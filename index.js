@@ -51,16 +51,14 @@ client.login(token);
 var alerte = 0; // 0 = Ok - 1 = Avertissement - 2 = Stop - 3 = Alerte
 
 cron.schedule("0 */6 * * *", async () => {
-
   let responseAdminStats = await fetch("https://api.hyakanime.fr/admin/stats");
   let dataAdminStats = await responseAdminStats.text();
   var resultatAdminStats = JSON.parse(dataAdminStats);
-
   const embedAvertissementEdit = new EmbedBuilder()
     .setAuthor({ name: "⚠️ Avertissement Edits" })
     .setColor("#ff6700")
     .setDescription(
-      `**Actuellement il y a ${resultatAdminStats.editAnime} edits en cours ! \n\n Merci de vous calmez sur les edits tant que l'alerte est présente.**` //25
+      `**Actuellement il y a ${resultatAdminStats.editAnime} édits en cours ! \n\n Merci de vous calmer sur les édits tant que l'alerte est présente.**` //25
     )
     .setTimestamp();
 
@@ -68,21 +66,21 @@ cron.schedule("0 */6 * * *", async () => {
     .setAuthor({ name: "⚠️ Avertissement Edits" })
     .setColor("#FF0000")
     .setDescription(
-      `**Actuellement il y a ${resultatAdminStats.editAnime} edits en cours ! \n\n Merci de vous stoper sur les edits et faire uniquements ceux necessaire tant que l'alerte est présente.**` //50
+      `**Actuellement il y a ${resultatAdminStats.editAnime} édits en cours ! \n\n Merci de vous stoper sur les édits et faire uniquements ceux necessaire tant que l'alerte est présente.**` //50
     )
     .setTimestamp();
   const embedCaFaitBeaucoupLa = new EmbedBuilder()
     .setAuthor({ name: "⚠️ Avertissement Edits" })
     .setColor("#8B0000")
     .setDescription(
-      `**Actuellement il y a ${resultatAdminStats.editAnime} edits en cours ! \n\n Nous y apprenons également le décès de <@266172334010925056> suite a un surmenage 🪦.**` //100
+      `**Actuellement il y a ${resultatAdminStats.editAnime} édits en cours ! \n\n Nous y apprenons également le décès de <@266172334010925056> suite à un surmenage 🪦.**` //100
     )
     .setTimestamp();
   const embedEditBon = new EmbedBuilder()
     .setAuthor({ name: "⚠️ Avertissement Edits" })
     .setColor("#00FF00")
     .setDescription(
-      "**Vous pouvez reprendre vos edits a un rythme normal ! \n\n Merci de votre comprhéension !**"
+      "**Vous pouvez reprendre vos édits à un rythme normal ! \n\n Merci de votre compréhension !**"
     )
     .setTimestamp();
 
