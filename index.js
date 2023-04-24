@@ -1,10 +1,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Partials, Client, Collection, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { token, appKey, appSecret, accessToken, accessSecret, twitterid, twitterChannel, channelEdit } = require('./config.json');
+const { token, channelEdit } = require('./config.json');
 const cron = require("node-cron");
 const fetch = require("node-fetch");
-const { TwitterApi } = require("twitter-api-v2");
 
 const client = new Client({
   intents: [
@@ -33,32 +32,30 @@ for (const file of eventFiles) {
   } else {
     client.on(event.name, (...args) => event.execute(...args));
   }
-
 }
 
 for (const file of commandFiles) {
   const filePath = path.join(commandsPath, file);
   const command = require(filePath);
   client.commands.set(command.data.name, command);
-
 }
 
 
 client.login(token);
 
 //Alerte Edits
-
 var alerte = 0; // 0 = Ok - 1 = Avertissement - 2 = Stop - 3 = Alerte
 
 cron.schedule("0 */6 * * *", async () => {
   let responseAdminStats = await fetch("https://api.hyakanime.fr/admin/stats");
   let dataAdminStats = await responseAdminStats.text();
   var resultatAdminStats = JSON.parse(dataAdminStats);
+
   const embedAvertissementEdit = new EmbedBuilder()
     .setAuthor({ name: "⚠️ Avertissement Edits" })
     .setColor("#ff6700")
     .setDescription(
-      `**Actuellement il y a ${resultatAdminStats.editAnime} édits en cours ! \n\n Merci de vous calmer sur les édits tant que l'alerte est présente.**` //25
+      `**Actuellement il y a ${resultatAdminStats.editAnime} édits en cours ! \n\n Merci de réduire le nombre d'édition le temps que les précédentes soient traités.**` //25
     )
     .setTimestamp();
 
@@ -66,9 +63,10 @@ cron.schedule("0 */6 * * *", async () => {
     .setAuthor({ name: "⚠️ Avertissement Edits" })
     .setColor("#FF0000")
     .setDescription(
-      `**Actuellement il y a ${resultatAdminStats.editAnime} édits en cours ! \n\n Merci de vous stoper sur les édits et faire uniquements ceux necessaire tant que l'alerte est présente.**` //50
+      `**Actuellement il y a ${resultatAdminStats.editAnime} édits en cours ! \n\n Merci d'arrêter d'envoyer de nouveaux édits sauf s'ils continnent de nouvelles informations importantes.**` //50
     )
     .setTimestamp();
+
   const embedCaFaitBeaucoupLa = new EmbedBuilder()
     .setAuthor({ name: "⚠️ Avertissement Edits" })
     .setColor("#8B0000")
@@ -76,6 +74,7 @@ cron.schedule("0 */6 * * *", async () => {
       `**Actuellement il y a ${resultatAdminStats.editAnime} édits en cours ! \n\n Nous y apprenons également le décès de <@266172334010925056> suite à un surmenage 🪦.**` //100
     )
     .setTimestamp();
+
   const embedEditBon = new EmbedBuilder()
     .setAuthor({ name: "⚠️ Avertissement Edits" })
     .setColor("#00FF00")
