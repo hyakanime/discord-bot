@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "dayjs": "^1.11.7",
     "discord.js": "^14.3.0",
     "node-cron": "^3.0.2",
     "node-fetch": "^2.6.7",
