@@ -18,7 +18,7 @@ module.exports = {
                 )
         ),
     async execute(interaction) {
-        await interaction.deferReply({ephemeral: true});
+        await interaction.deferReply({ ephemeral: true });
         var choix;
         const typeOption = interaction.options.get("type");
         if (typeOption) {
@@ -27,7 +27,7 @@ module.exports = {
             choix = 'unedifined';
         }
 
-// Choix jour / par défaut
+        // Choix jour / par défaut
         if (choix === 'unedifined' || choix === 'jour') {
             dayjs.locale("fr")
             var now = dayjs().hour(0).minute(0).second(0);
@@ -80,7 +80,7 @@ module.exports = {
 
             await interaction.editReply({ embeds: [exampleEmbed] });
         }
-        else{
+        else {
             console.log("test");
             var now = dayjs().day(1).hour(0).minute(0).second(0);
             var après = now.add((7), "day");
@@ -112,7 +112,6 @@ module.exports = {
                 }
                 i++;
             }
-            console.log(horodatages[1][0]);
             const jourSemaine = ["Dimanche", "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi"];
             var semaineEmbed = new EmbedBuilder()
                 .setColor(0x0099ff)
@@ -124,25 +123,25 @@ module.exports = {
                     url: "https://hyakanime.fr",
                 })
                 .setTimestamp();
-            
+
             for (let jour = 1; jour < 7; jour++) {
                 let animeJour = "";
                 for (let i = 0; i < horodatages[jour].length; i++) {
                     var heure = dayjs(horodatages[jour][i].horodatage).format("H:mm");
                     animeJour += `**${heure}** - ${horodatages[jour][i].animeTitle} - ${horodatages[jour][i].episode}\n`;
                 }
-                semaineEmbed.addFields({name: jourSemaine[jour], value: animeJour,inline: false});
+                semaineEmbed.addFields({ name: jourSemaine[jour], value: animeJour, inline: false });
             }
-            
+
             // Ajouter le dimanche à la fin
             let animeJour = "";
             for (let i = 0; i < horodatages[0].length; i++) {
                 var heure = dayjs(horodatages[0][i].horodatage).format("H:mm");
                 animeJour += `**${heure}** - ${horodatages[0][i].animeTitle} - ${horodatages[0][i].episode}\n`;
             }
-            semaineEmbed.addFields({name: jourSemaine[0], value: animeJour,inline: false});
-            
-            await interaction.editReply({ embeds: [semaineEmbed]});
+            semaineEmbed.addFields({ name: jourSemaine[0], value: animeJour, inline: false });
+
+            await interaction.editReply({ embeds: [semaineEmbed] });
         }
     }
 }
