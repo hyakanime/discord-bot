@@ -60,8 +60,7 @@ module.exports = {
                 }
                 i++;
             }
-            i = 0;
-            const exampleEmbed = new EmbedBuilder()
+            const jourEmbed = new EmbedBuilder()
                 .setColor(0x0099ff)
                 .setTitle("Agenda du Jour")
                 .setURL("https://hyakanime.fr/agenda")
@@ -74,14 +73,13 @@ module.exports = {
                 .setTimestamp();
             i = 0
             while (i < nom.length) {
-                exampleEmbed.addFields({ name: timestamp[i], value: nom[i].slice(0, 43) + " - " + episode[i], inline: false })
+                jourEmbed.addFields({ name: timestamp[i], value: nom[i].slice(0, 43) + " - " + "**"+episode[i]+"**", inline: false })
                 i++;
             }
 
-            await interaction.editReply({ embeds: [exampleEmbed] });
+            await interaction.editReply({ embeds: [jourEmbed] });
         }
         else {
-            console.log("test");
             var now = dayjs().day(1).hour(0).minute(0).second(0);
             var après = now.add((7), "day");
             now = now.valueOf();
@@ -128,7 +126,7 @@ module.exports = {
                 let animeJour = "";
                 for (let i = 0; i < horodatages[jour].length; i++) {
                     var heure = dayjs(horodatages[jour][i].horodatage).format("H:mm");
-                    animeJour += `**${heure}** - ${horodatages[jour][i].animeTitle} - ${horodatages[jour][i].episode}\n`;
+                    animeJour += `**${heure}** - ${horodatages[jour][i].animeTitle} - **${horodatages[jour][i].episode}**\n`;
                 }
                 semaineEmbed.addFields({ name: jourSemaine[jour], value: animeJour, inline: false });
             }
@@ -137,7 +135,7 @@ module.exports = {
             let animeJour = "";
             for (let i = 0; i < horodatages[0].length; i++) {
                 var heure = dayjs(horodatages[0][i].horodatage).format("H:mm");
-                animeJour += `**${heure}** - ${horodatages[0][i].animeTitle} - ${horodatages[0][i].episode}\n`;
+                animeJour += `**${heure}** - ${horodatages[0][i].animeTitle} - **${horodatages[0][i].episode}**\n`;
             }
             semaineEmbed.addFields({ name: jourSemaine[0], value: animeJour, inline: false });
 
