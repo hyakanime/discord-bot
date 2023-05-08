@@ -131,8 +131,7 @@ module.exports = {
                     var heure = dayjs(horodatages[jour][i].horodatage).format("H:mm");
                     animeJour += `**${heure}** - ${horodatages[jour][i].animeTitle} - ${horodatages[jour][i].episode}\n`;
                 }
-                semaineEmbed.addFields({name: jourSemaine[jour], value: animeJour,inline: true});
-                semaineEmbed.addFields({name: '\u200b', value: '\u200b',inline: true});
+                semaineEmbed.addFields({name: jourSemaine[jour], value: animeJour,inline: false});
             }
             
             // Ajouter le dimanche à la fin
@@ -141,7 +140,7 @@ module.exports = {
                 var heure = dayjs(horodatages[0][i].horodatage).format("H:mm");
                 animeJour += `**${heure}** - ${horodatages[0][i].animeTitle} - ${horodatages[0][i].episode}\n`;
             }
-            semaineEmbed.addFields({name: jourSemaine[0], value: animeJour,inline: true});
+            semaineEmbed.addFields({name: jourSemaine[0], value: animeJour,inline: false});
             
             await interaction.editReply({ embeds: [semaineEmbed]});
         }
