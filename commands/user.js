@@ -72,7 +72,7 @@ module.exports = {
           "https://www.hyakanime.fr/static/media/appLogo.7fac0ec4359bda8ccf0f.png",
         url: "https://hyakanime.fr",
       })
-      .setThumbnail(result.photoURL)
+      .setThumbnail("https://cdn-hyakanime.s3.eu-west-3.amazonaws.com/media/default/avatar.png")
       .addFields(
         { name: "TITRE AJOUTÉS", value: "" + episodes, inline: true },
         { name: "\u200b", value: "\u200b", inline: true },
