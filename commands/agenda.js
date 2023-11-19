@@ -45,7 +45,7 @@ module.exports = {
             now = now.valueOf()-3600000;
             après = après.valueOf()-3600000;
             let response = await fetch(
-                "https://api.hyakanime.fr/episode/sortie-hebdo/" +
+                "https://api-v2.hyakanime.fr/episode/sortie-hebdo/" +
                 now +
                 "/" +
                 après,
@@ -95,7 +95,7 @@ module.exports = {
             now = now.valueOf()-3600000;
             après = après.valueOf()-3600000;
             let response = await fetch(
-                "https://api.hyakanime.fr/episode/sortie-hebdo/" +
+                "https://api-v2.hyakanime.fr/episode/sortie-hebdo/" +
                 now +
                 "/" +
                 après,
