@@ -47,7 +47,7 @@ client.login(token);
 var alerte = 0; // 0 = Ok - 1 = Avertissement - 2 = Stop - 3 = Alerte
 
 cron.schedule("0 */6 * * *", async () => {
-  let responseAdminStats = await fetch("https://api.hyakanime.fr/admin/stats");
+  let responseAdminStats = await fetch("https://api-v2.hyakanime.fr/admin/stats");
   let dataAdminStats = await responseAdminStats.text();
   var resultatAdminStats = JSON.parse(dataAdminStats);
 
