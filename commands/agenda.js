@@ -1,7 +1,13 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const fetch = require("node-fetch");
-const dayjs = require('dayjs')
-require('dayjs/locale/fr')
+const dayjs = require("dayjs");
+const utc = require("dayjs/plugin/utc");
+const timezone = require("dayjs/plugin/timezone");
+require("dayjs/locale/fr");
+
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.tz.setDefault("Europe/Paris");
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -24,18 +30,22 @@ module.exports = {
         if (typeOption) {
             choix = typeOption.value;
         } else {
-            choix = 'unedifined';
+            choix = "unedifined";
+        }
+
+        // Fonction pour convertir l'heure UTC en heure Paris
+        function convertToParisTime(utcTime) {
+            return dayjs(utcTime).utc().tz("Europe/Paris").format("H:mm");
         }
 
         // Choix jour / par défaut
-        if (choix === 'unedifined' || choix === 'jour') {
-            dayjs.locale("fr")
+        if (choix === "unedifined" || choix === "jour") {
             var now = dayjs().hour(0).minute(0).second(0);
             var après = now.add((1), "day");
-            now = now.valueOf();
-            après = après.valueOf();
+            now = now.valueOf()-3600000;
+            après = après.valueOf()-3600000;
             let response = await fetch(
-                "https://api.hyakanime.fr/episode/sortie-hebdo/" +
+                "https://api-v2.hyakanime.fr/episode/sortie-hebdo/" +
                 now +
                 "/" +
                 après,
@@ -55,7 +65,7 @@ module.exports = {
                 if (result[i].displayCalendar == true) {
                     nom[b] = result[i].animeTitle;
                     episode[b] = result[i].title;
-                    timestamp[b] = dayjs(result[i].timestamp).format("H:mm");
+                    timestamp[b] = convertToParisTime(result[i].timestamp);
                     b++;
                 }
                 i++;
@@ -71,21 +81,21 @@ module.exports = {
                     url: "https://hyakanime.fr",
                 })
                 .setTimestamp();
-            i = 0
+            i = 0;
             while (i < nom.length) {
-                jourEmbed.addFields({ name: timestamp[i], value: nom[i].slice(0, 43) + " - " + "**"+episode[i]+"**", inline: false })
+                jourEmbed.addFields({ name: timestamp[i], value: nom[i].slice(0, 40) + " - " + "**"+episode[i]+"**", inline: false });
                 i++;
             }
 
             await interaction.editReply({ embeds: [jourEmbed] });
         }
         else {
-            var now = dayjs().day(1).hour(0).minute(0).second(0);
-            var après = now.add((7), "day");
-            now = now.valueOf();
-            après = après.valueOf();
+            now = dayjs().day(1).hour(0).minute(0).second(0);
+            après = now.add((7), "day");
+            now = now.valueOf()-3600000;
+            après = après.valueOf()-3600000;
             let response = await fetch(
-                "https://api.hyakanime.fr/episode/sortie-hebdo/" +
+                "https://api-v2.hyakanime.fr/episode/sortie-hebdo/" +
                 now +
                 "/" +
                 après,
@@ -95,12 +105,12 @@ module.exports = {
             );
 
             let data = await response.text();
-            var result = JSON.parse(data);
-            var i = 0;
+            result = JSON.parse(data);
+            i = 0;
             let horodatages = [[], [], [], [], [], [], []]; //0 = dimanche - 1 = lundi
             while (i < result.length) {
                 if (result[i].displayCalendar == true) {
-                    let jour = dayjs(result[i].timestamp).day();
+                    let jour = dayjs.utc(result[i].timestamp).utcOffset(120).day();
                     let donnees = {
                         horodatage: result[i].timestamp,
                         animeTitle: result[i].animeTitle,
@@ -124,22 +134,39 @@ module.exports = {
 
             for (let jour = 1; jour < 7; jour++) {
                 let animeJour = "";
+                let animeJourPartie2 = "";
+                let longueur = 0; // Utilisez une variable pour stocker la longueur actuelle
+                  
                 for (let i = 0; i < horodatages[jour].length; i++) {
-                    var heure = dayjs(horodatages[jour][i].horodatage).format("H:mm");
-                    animeJour += `**${heure}** - ${horodatages[jour][i].animeTitle} - **${horodatages[jour][i].episode}**\n`;
+                    var heure = convertToParisTime(horodatages[jour][i].horodatage);
+                    const animeTitle = horodatages[jour][i].animeTitle.slice(0, 30);
+                    const episode = horodatages[jour][i].episode.replace("Épisode", "Ep");
+                    const animeString = `**${heure}** - ${animeTitle} - **${episode}**\n`;
+                  
+                    if (longueur + animeString.length <= 970) {
+                        animeJour += animeString;
+                        longueur += animeString.length;
+                    } else {
+                        animeJourPartie2 += animeString;
+                    }
                 }
                 semaineEmbed.addFields({ name: jourSemaine[jour], value: animeJour, inline: false });
+                  
+                if (animeJourPartie2 !== "") {
+                    semaineEmbed.addFields({ name: jourSemaine[jour]+ " Partie 2", value: animeJourPartie2, inline: false });
+                }
             }
-
+                  
             // Ajouter le dimanche à la fin
             let animeJour = "";
             for (let i = 0; i < horodatages[0].length; i++) {
-                var heure = dayjs(horodatages[0][i].horodatage).format("H:mm");
-                animeJour += `**${heure}** - ${horodatages[0][i].animeTitle} - **${horodatages[0][i].episode}**\n`;
+                heure = convertToParisTime(horodatages[0][i].horodatage);
+                animeJour += `**${heure}** - ${horodatages[0][i].animeTitle.slice(0,30)} - **${horodatages[0][i].episode.replace("Épisode", "Ep")}**\n`;
             }
             semaineEmbed.addFields({ name: jourSemaine[0], value: animeJour, inline: false });
 
-            await interaction.editReply({ embeds: [semaineEmbed] });
+            await interaction.editReply({ embeds: [semaineEmbed]});
+
         }
     }
-}
+};
