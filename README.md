@@ -1,5 +1,5 @@
 <h1 align="center">
-Hyakanime Discord bot
+Hyakanime Discord bot 
 </h1>
 
 <p align="center" style='font-weight: 500; color: grey'>
