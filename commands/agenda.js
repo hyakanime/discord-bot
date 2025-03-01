@@ -4,7 +4,7 @@ const dayjs = require("dayjs");
 const utc = require("dayjs/plugin/utc");
 const timezone = require("dayjs/plugin/timezone");
 require("dayjs/locale/fr");
-
+const {logoUrl, urlEndpoint} = require("../config.json");
 dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.tz.setDefault("Europe/Paris");
@@ -45,7 +45,7 @@ module.exports = {
             now = now.valueOf()-3600000;
             après = après.valueOf()-3600000;
             let response = await fetch(
-                "https://api-v2.hyakanime.fr/episode/sortie-hebdo/" +
+                urlEndpoint+"/episode/sortie-hebdo/" +
                 now +
                 "/" +
                 après,
@@ -77,7 +77,7 @@ module.exports = {
                 .setAuthor({
                     name: "hyakanime",
                     iconURL:
-                        "https://www.hyakanime.fr/static/media/appLogo.7fac0ec4359bda8ccf0f.png",
+                        logoUrl,
                     url: "https://hyakanime.fr",
                 })
                 .setTimestamp();

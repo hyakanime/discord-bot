@@ -1,4 +1,4 @@
-{
+{	
 	"token": "REMPLIR-AVEC-LE-TOKEN-DU-BOT",
 	"applicationId" : "REMPLIR-AVEC-L-APPLICATION-ID-DU-BOT",
 	"channelBeta": "1036762035645599755",
@@ -17,6 +17,8 @@
 	"accessToken": "",
 	"accessSecret": "",
 	"twitterid": "id du compte twitter ex Hyakanime : 1345062641002278912",
-	"twitterChannel": "id channel ou seront envoyez les tweets"
+	"twitterChannel": "id channel ou seront envoyez les tweets",
+	"logoUrl": "https://cdn-hyakanime.s3.eu-west-3.amazonaws.com/logo-hyakanime.png", 
+	"urlEndpoint": "https://api-v3.hyakanime.fr"
 }
 
