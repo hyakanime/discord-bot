@@ -43,7 +43,6 @@ module.exports = {
     var timestamp = result.createdAt;
     let date1 = new Date(timestamp * 1);
     let response2 = await fetch(urlEndpoint+"/progression/anime/" + uid);
-    console.log(urlEndpoint+"/progression/anime/" + uid);
     let data2 = await response2.text();
     var resultatProgression = JSON.parse(data2);
     var premium = "";
@@ -74,7 +73,7 @@ module.exports = {
           logoUrl,
         url: "https://hyakanime.fr",
       })
-      .setThumbnail("https://cdn-hyakanime.s3.eu-west-3.amazonaws.com/media/default/avatar.png")
+      .setThumbnail(result.photoURL)
       .addFields(
         { name: "TITRE AJOUTÉS", value: "" + episodes, inline: true },
         { name: "\u200b", value: "\u200b", inline: true },
