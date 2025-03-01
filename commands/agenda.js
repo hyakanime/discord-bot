@@ -27,8 +27,6 @@ module.exports = {
             end.setDate(start.getDate() + 6);
             end.setHours(23, 59, 59, 999);
         }
-        console.log(start.getTime());
-        console.log(end.getTime());
         const result = await fetch(`${urlEndpoint}/episode/sortie-hebdo/${start.getTime()}/${end.getTime()}`);
         const data = await result.text();
         const response = JSON.parse(data);
@@ -45,7 +43,7 @@ module.exports = {
             })
             .setColor("#0099ff")
             .setURL("https://hyakanime.fr/agenda")
-        
+
         if(type === "jour") {
             embed.setTitle(`Agenda du Jour`);
             listAnime.forEach((anime) => {
@@ -105,7 +103,7 @@ module.exports = {
                 });
             });
         }
-        
+
         interaction.editReply({ embeds: [embed] });
     }
 };
