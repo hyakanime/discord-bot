@@ -34,7 +34,6 @@ module.exports = {
                         }else{
                             embed.setDescription("Ce contenu est réservé à un public averti.")
                         }
-                    //supprimer l'embed du msg
                     await msg.suppressEmbeds(true);
 
                     await msg.reply({embeds: [embed], allowedMentions: {repliedUser: false}});
@@ -113,7 +112,7 @@ module.exports = {
                           "/" +
                           date1.getFullYear(),
                       });
-                
+                    await msg.suppressEmbeds(true);
                     await msg.reply({ embeds: [userEmbed], allowedMentions: {repliedUser: false} });
                   }
             }
