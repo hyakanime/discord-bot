@@ -49,6 +49,7 @@ Bienvenue sur le répertoire du Bot Discord présent sur le serveur Hyakanime.
 | Fonctionnalités     | Auteur                                   |
 | ----------------    | ---------------------------------------- |
 | Avertissement Edits | [Dem0nx309](https://github.com/dem0nx309)|                                       
-| Agenda              | [Dem0nx309](https://github.com/dem0nx309)|
+| Agenda              | [Dem0nx309](https://github.com/dem0nx309) & [Ianice](https://github.com/ianice-lng)|
 | Twitter             | [Dem0nx309](https://github.com/dem0nx309)|
 | User                | [Dem0nx309](https://github.com/dem0nx309)|
+| Embed dynamique     | [Ianice](https://github.com/ianice-lng)|
