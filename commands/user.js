@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const fetch = require("node-fetch");
+const { urlEndpoint, logoUrl } = require("../config.json");
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("user")
@@ -15,18 +16,18 @@ module.exports = {
   async execute(interaction) {
     await interaction.deferReply();
     var pseudo = interaction.options.getString("pseudo");
-    let responseUser = await fetch("https://api-v2.hyakanime.fr/user/" + pseudo);
+    let responseUser = await fetch(urlEndpoint+"/user/" + pseudo);
     let dataUser = await responseUser.text();
     var result = JSON.parse(dataUser);
     var uid = result.uid;
     if (result.username == undefined) {
-      let reponseRecherche = await fetch("https://api-v2.hyakanime.fr/search/user/" + pseudo);
+      let reponseRecherche = await fetch(urlEndpoint+"/search/user/" + pseudo);
       let dataRecherche = await reponseRecherche.text();
       var resultRecherche = JSON.parse(dataRecherche);
       if (resultRecherche != "" || undefined) {
         const usernameLePlusProche = trouveLePlusProche(pseudo, resultRecherche, 'username');
         pseudo = usernameLePlusProche.username;
-        let responseUser = await fetch("https://api-v2.hyakanime.fr/user/" + pseudo);
+        let responseUser = await fetch(urlEndpoint+"/user/" + pseudo);
         let dataUser = await responseUser.text();
         var result = JSON.parse(dataUser);
       }
@@ -41,7 +42,7 @@ module.exports = {
     if(uid != undefined){
     var timestamp = result.createdAt;
     let date1 = new Date(timestamp * 1);
-    let response2 = await fetch("https://api-v2.hyakanime.fr/progression/anime/" + uid);
+    let response2 = await fetch(urlEndpoint+"/progression/anime/" + uid);
     let data2 = await response2.text();
     var resultatProgression = JSON.parse(data2);
     var premium = "";
@@ -65,14 +66,14 @@ module.exports = {
     const userEmbed = new EmbedBuilder()
       .setColor(0x0099ff)
       .setTitle(result.username + " " + premium)
-      .setURL("https://hyakanime.fr/profile/" + pseudo)
+      .setURL("https://hyakanime.fr/user/" + pseudo)
       .setAuthor({
         name: "Hyakanime",
         iconURL:
-          "https://www.hyakanime.fr/static/media/appLogo.7fac0ec4359bda8ccf0f.png",
+          logoUrl,
         url: "https://hyakanime.fr",
       })
-      .setThumbnail("https://cdn-hyakanime.s3.eu-west-3.amazonaws.com/media/default/avatar.png")
+      .setThumbnail(result.photoURL)
       .addFields(
         { name: "TITRE AJOUTÉS", value: "" + episodes, inline: true },
         { name: "\u200b", value: "\u200b", inline: true },
