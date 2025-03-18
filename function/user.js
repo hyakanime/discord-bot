@@ -89,15 +89,15 @@ async function createStatsCanvas(statsHyak) {
       { label: 'Total', value: stats.total, x: 25, y: 30, color: '#FFFFFF' },
       { label: 'À voir', value: stats.aVoir, x: 25, y: 50, color: colors.aVoir },
       { label: 'En Pause', value: stats.enPause, x: 25, y: 70, color: colors.enPause },
-      { label: 'En cours', value: stats.enCours, x: 300, y: 30, color: colors.enCours },
-      { label: 'Terminé', value: stats.termine, x: 300, y: 50, color: colors.termine },
-      { label: 'Abandonné', value: stats.abandonne, x: 300, y: 70, color: colors.abandonne }
+      { label: 'En cours', value: stats.enCours, x: 260, y: 30, color: colors.enCours },
+      { label: 'Terminé', value: stats.termine, x: 260, y: 50, color: colors.termine },
+      { label: 'Abandonné', value: stats.abandonne, x: 260, y: 70, color: colors.abandonne }
     ];
   
     positions.forEach(({ label, value, x, y, color }) => {
       ctx.fillStyle = color;
       ctx.fillText(label, x, y);
-      ctx.fillText(value, x + 80, y);
+      ctx.fillText(value, x + 100, y);
     });
   
     // Dessin de la barre de progression

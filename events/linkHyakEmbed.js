@@ -6,13 +6,16 @@ module.exports = {
     name: Events.MessageCreate,
     async execute(msg) {
         if(msg.author.bot) return;
+        if(msg.content === null) return;
+        if(!msg.content.includes("://")) return;
         const message = msg.content;
         const regex = /https?:\/\/[^\s]+/g;
         const link = message.match(regex)[0];
         if(!link) return;
         let info = link.replace("https://", "").replace("http://", "").replace("www.", "").split("/");
         if(info[0] === "hyakanime.fr"){
-            if(info[1] === "anime"){
+            if(info[1] === "anime" ){
+              if(info[2] === undefined || info[2] === "") return;
                 const result = await fetch(`${urlEndpoint}/anime/${info[2]}`);
                 const data = await result.text();
                 const response = JSON.parse(data);
@@ -38,6 +41,7 @@ module.exports = {
                     await msg.reply({embeds: [embed], allowedMentions: {repliedUser: false}});
 
             }else if(info[1] === "user"){
+              if(info[2] === undefined || info[2] === "") return;
                 let pseudo = info[2];
                 const { userEmbed, attachment } = await fetchUser(pseudo, EmbedBuilder, AttachmentBuilder);
                     if (userEmbed == null) {
