@@ -48,10 +48,9 @@ async function fetchUser(pseudo, EmbedBuilder, AttachmentBuilder) {
           .addFields(
             { name: "TITRE AJOUTÉS", value: "" + episodes, inline: true },
             { name: "ÉPISODES VUS", value: "" + addition, inline: true },
-            { name: "\u200b", value: "\u200b", inline: true },
+            { name: "\u200b", value: "\u200b", inline: false},
             { name: "TITRE REWATCH", value: "" + revisionageAnime, inline: true },
-            { name: "ÉPISODES REWATCH", value: "" + revisionageEpisode, inline: true },
-            { name: "\u200b", value: "\u200b", inline: true }
+            { name: "ÉPISODES REWATCH", value: "" + revisionageEpisode, inline: true }
           )
           .setImage("attachment://stats.png")
           .setTimestamp()

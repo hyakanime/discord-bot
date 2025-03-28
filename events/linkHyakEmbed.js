@@ -74,75 +74,100 @@ module.exports = {
                         .setURL(`https://hyakanime.fr/anime/${response.id}`)
                         .setTimestamp()
                         .setDescription(response.synopsis === undefined ? "Pas de synopsis renseigné." : response.synopsis)
+                        const embedFields = [];
+
                         Object.keys(response).forEach((key) => {
                             switch (key) {
                                 case "image":
-                                    newEmbed.setImage(response[key])
+                                    newEmbed.setImage(response[key]);
                                     break;
                                 case "genre":
-                                    newEmbed.addFields(
-                                        { name: 'Genres', value: response[key] === undefined || response[key].length < 1 ? "Pas de genres renseignés." : response[key].join(", "), inline: true })
+                                    embedFields.push({ 
+                                        name: 'Genres', 
+                                        value: response[key]?.length ? response[key].join(", ") : "Pas de genres renseignés.", 
+                                        inline: true 
+                                    });
                                     break;
                                 case "NbEpisodes":
-                                    newEmbed.addFields(
-                                        { name: 'Nombre d\'épisodes', value: response[key] === undefined || response[key] === null ? "0" : `${response[key]}`,  inline: true })
+                                    embedFields.push({ 
+                                        name: "Nombre d'épisodes", 
+                                        value: response[key] ? `${response[key]}` : "0", 
+                                        inline: true 
+                                    });
                                     break;
                                 case "vf":
-                                    newEmbed.addFields(
-                                        { name: "VF", value: response[key] === undefined ? response[key] ? "Oui" : "Non" : "Non", inline: true})
+                                    embedFields.push({ 
+                                        name: "VF", 
+                                        value: response[key] ? "Oui" : "Non", 
+                                        inline: true 
+                                    });
                                     break;
                                 case "studios":
-                                    newEmbed.addFields(
-                                        { name: "Studios", value: response[key] === undefined ? "Pas de studio renseigné" : response[key], inline: true})
+                                    embedFields.push({ 
+                                        name: "Studios", 
+                                        value: response[key] || "Pas de studio renseigné", 
+                                        inline: true 
+                                    });
                                     break;
                                 case "source":
-                                    newEmbed.addFields(
-                                        { name: "Sources", value: response[key] === undefined ? "Pas de source renseigné" : response[key], inline: true})
+                                    embedFields.push({ 
+                                        name: "Sources", 
+                                        value: response[key] || "Pas de source renseigné", 
+                                        inline: true 
+                                    });
                                     break;
                                 case "diffuseur":
-                                    let diffuseurs = []
-                                    Object.keys(response[key]).forEach((name) => {
-                                        diffuseurs.push(`[${name}](${response[key][name]})`)
-                                    })
-                                    newEmbed.addFields(
-                                        { name: `Diffuseur${response[key].length > 1 ? "s": ""}`, value: diffuseurs.join(', '), inline: true })
+                                    if (response[key]) {
+                                        let diffuseurs = [];
+                                        Object.keys(response[key]).forEach((name) => {
+                                            diffuseurs.push(`[${name}](${response[key][name]})`);
+                                        });
+                                        embedFields.push({ 
+                                            name: `Diffuseur${diffuseurs.length > 1 ? "s" : ""}`, 
+                                            value: diffuseurs.join(", "), 
+                                            inline: true 
+                                        });
+                                    }
                                     break;
                                 case "status":
-                                    let status = ""
-                                    switch (response[key]) {
-                                        case 1:
-                                            status = "En cours"
-                                            break;
-                                        case 2:
-                                            status = "À venir"
-                                            break;
-                                        case 3:
-                                            status = "Diffusion terminé"
-                                            break;
-                                        case 4:
-                                            status = "Annulé"
-                                            break;
-                                        default:
-                                            status = "Pas de status renseigné."
-                                            break;
-                                    }
-                                    newEmbed.addFields(
-                                        { name: 'Status', value: response[key] === undefined ? "Pas de status renseigné." : status,  inline: true })
+                                    let statusMap = {
+                                        1: "En cours",
+                                        2: "À venir",
+                                        3: "Diffusion terminée",
+                                        4: "Annulé"
+                                    };
+                                    embedFields.push({ 
+                                        name: "Status", 
+                                        value: statusMap[response[key]] || "Pas de status renseigné.", 
+                                        inline: true 
+                                    });
                                     break;
                                 case "start":
-                                    newEmbed.addFields(
-                                        { name: 'Date de sortie', value: `${response[key].day === null || response[key].day === undefined ? "" : response[key].day+ "/"}${response[key].month === null || response[key].month === undefined ? "" : response[key].month+ "/"}${response[key].year === null || response[key].year === undefined ? "" : response[key].year}`, inline: true },)
+                                    embedFields.push({ 
+                                        name: "Date de sortie", 
+                                        value: `${response[key].day ? response[key].day + "/" : ""}${response[key].month ? response[key].month + "/" : ""}${response[key].year || ""}`, 
+                                        inline: true 
+                                    });
                                     break;
                                 case "end":
                                     if (response[key].year !== null) {
-                                        newEmbed.addFields(
-                                            { name: 'Date de fin', value: `${response[key].day === null || response[key].day === undefined ? "" : response[key].day + "/"}${response[key].month === null || response[key].month === undefined ? "" : response[key].month + "/"}${response[key].year === null || response[key].year === undefined ? "" : response[key].year}`, inline: true },)
+                                        embedFields.push({ 
+                                            name: "Date de fin", 
+                                            value: `${response[key].day ? response[key].day + "/" : ""}${response[key].month ? response[key].month + "/" : ""}${response[key].year || ""}`, 
+                                            inline: true 
+                                        });
                                     }
-                                    break;
-                                default:
                                     break;
                             }
                         });
+                        //Afficher les champs dans un ordre précis
+                        embedFields.sort((a, b) => {
+                            const order = [ "Status", "Genres", "Nombre d'épisodes", "Studios", "Sources", "Diffuseur", "VF", "Date de sortie", "Date de fin"];
+                            return order.indexOf(a.name) - order.indexOf(b.name);
+                        });
+
+                        newEmbed.addFields(...embedFields);
+
                         if(msg.author.id === i.user.id){
                             button.setLabel("Voir moins...")
                             await i.update({ embeds: [newEmbed], components: [new ActionRowBuilder().addComponents(button)] });
