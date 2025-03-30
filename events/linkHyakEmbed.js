@@ -1,23 +1,68 @@
-const { Events, EmbedBuilder} = require("discord.js");
+const { Events, EmbedBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, ActionRowBuilder, ComponentType } = require("discord.js");
 const fetch = require("node-fetch");
-const {logoUrl, urlEndpoint} = require("../config.json");
-
+const { logoUrl, urlEndpoint } = require("../config.json");
+const { fetchUser } = require("../function/user.js");
 module.exports = {
     name: Events.MessageCreate,
     async execute(msg) {
-        if(msg.author.bot) return;
+        if (msg.author.bot) return;
+        if (msg.content === null) return;
+        msg.content = msg.content.toLowerCase();
+        if (!msg.content.includes("://")) return;
         const message = msg.content;
         const regex = /https?:\/\/[^\s]+/g;
         const link = message.match(regex)[0];
-        if(!link) return;
+        if (!link) return;
         let info = link.replace("https://", "").replace("http://", "").replace("www.", "").split("/");
-        console.log(info);
-        if(info[0] === "hyakanime.fr"){
-            if(info[1] === "anime"){
+        if (info[0] === "hyakanime.fr") {
+            if (info[1] === "anime") {
+                if (info[2] === undefined || info[2] === "") return;
+                let buttonClicked = false;
                 const result = await fetch(`${urlEndpoint}/anime/${info[2]}`);
                 const data = await result.text();
                 const response = JSON.parse(data);
-                    const embed = new EmbedBuilder()
+                const embed = new EmbedBuilder()
+                    .setAuthor({
+                        name: "hyakanime",
+                        iconURL:
+                            logoUrl,
+                        url: "https://hyakanime.fr",
+                    })
+                    .setColor("#0099ff")
+                    .setTitle(response.title ? response.title : response.titleEN ? response.titleEN : response.romanji ? response.romanji : response.titleJP)
+                    .setURL(`https://hyakanime.fr/anime/${response.id}`)
+
+                    .setTimestamp();
+                if (!response.adult) {
+                    embed.setDescription(response.synopsis === undefined ? "Pas de synopsis renseigné." : response.synopsis.slice(0, 200) + "...")
+                    if(response.image !== undefined){
+                        embed.setThumbnail(response.image)
+                    }
+                } else {
+                    embed.setDescription("Ce contenu est réservé à un public averti.")
+                }
+                await msg.suppressEmbeds(true);
+                if(response.adult){
+                    await msg.reply({ embeds: [embed], allowedMentions: { repliedUser: false } });
+                    return;
+                }
+                const button = new ButtonBuilder()
+                    .setStyle(ButtonStyle.Secondary)
+                    .setLabel("Voir plus...")
+                    .setEmoji("👀")
+                    .setCustomId(`animeButton_${response.id}_${msg.id}`);
+
+                const message = await msg.reply({ embeds: [embed], allowedMentions: { repliedUser: false }, components: [new ActionRowBuilder().addComponents(button)] });
+                const collector = msg.channel.createMessageComponentCollector({
+                    componentType: ComponentType.Button,
+                    time: 30000, // durée du bouton 
+                    filter: (i) => i.customId === `animeButton_${response.id}_${msg.id}`,
+                });
+
+                collector.on('collect', async i => {
+                    
+                    if (!buttonClicked) {
+                        const newEmbed =new EmbedBuilder()
                         .setAuthor({
                             name: "hyakanime",
                             iconURL:
@@ -25,102 +70,136 @@ module.exports = {
                             url: "https://hyakanime.fr",
                         })
                         .setColor("#0099ff")
-                        .setTitle(response.title)
+                        .setTitle(response.title ? response.title : response.titleEN ? response.titleEN : response.romanji ? response.romanji : response.titleJP)
                         .setURL(`https://hyakanime.fr/anime/${response.id}`)
-                        
-                        .setTimestamp();
-                        if(!response.adult){
-                            embed.setThumbnail(response.image).setDescription(response.synopsis.slice(0, 200) + "...")
-                        }else{
-                            embed.setDescription("Ce contenu est réservé à un public averti.")
-                        }
-                    await msg.suppressEmbeds(true);
+                        .setTimestamp()
+                        .setDescription(response.synopsis === undefined ? "Pas de synopsis renseigné." : response.synopsis)
+                        const embedFields = [];
 
-                    await msg.reply({embeds: [embed], allowedMentions: {repliedUser: false}});
-                
-            }else if(info[1] === "user"){
+                        Object.keys(response).forEach((key) => {
+                            switch (key) {
+                                case "image":
+                                    newEmbed.setImage(response[key]);
+                                    break;
+                                case "genre":
+                                    embedFields.push({ 
+                                        name: 'Genres', 
+                                        value: response[key]?.length ? response[key].join(", ") : "Pas de genres renseignés.", 
+                                        inline: true 
+                                    });
+                                    break;
+                                case "NbEpisodes":
+                                    embedFields.push({ 
+                                        name: "Nombre d'épisodes", 
+                                        value: response[key] ? `${response[key]}` : "0", 
+                                        inline: true 
+                                    });
+                                    break;
+                                case "vf":
+                                    embedFields.push({ 
+                                        name: "VF", 
+                                        value: response[key] ? "Oui" : "Non", 
+                                        inline: true 
+                                    });
+                                    break;
+                                case "studios":
+                                    embedFields.push({ 
+                                        name: "Studios", 
+                                        value: response[key] || "Pas de studio renseigné", 
+                                        inline: true 
+                                    });
+                                    break;
+                                case "source":
+                                    embedFields.push({ 
+                                        name: "Sources", 
+                                        value: response[key] || "Pas de source renseigné", 
+                                        inline: true 
+                                    });
+                                    break;
+                                case "diffuseur":
+                                    if (response[key]) {
+                                        let diffuseurs = [];
+                                        Object.keys(response[key]).forEach((name) => {
+                                            diffuseurs.push(`[${name}](${response[key][name]})`);
+                                        });
+                                        embedFields.push({ 
+                                            name: `Diffuseur${diffuseurs.length > 1 ? "s" : ""}`, 
+                                            value: diffuseurs.join(", "), 
+                                            inline: true 
+                                        });
+                                    }
+                                    break;
+                                case "status":
+                                    let statusMap = {
+                                        1: "En cours",
+                                        2: "À venir",
+                                        3: "Diffusion terminée",
+                                        4: "Annulé"
+                                    };
+                                    embedFields.push({ 
+                                        name: "Status", 
+                                        value: statusMap[response[key]] || "Pas de status renseigné.", 
+                                        inline: true 
+                                    });
+                                    break;
+                                case "start":
+                                    embedFields.push({ 
+                                        name: "Date de sortie", 
+                                        value: `${response[key].day ? response[key].day + "/" : ""}${response[key].month ? response[key].month + "/" : ""}${response[key].year || ""}`, 
+                                        inline: true 
+                                    });
+                                    break;
+                                case "end":
+                                    if (response[key].year !== null) {
+                                        embedFields.push({ 
+                                            name: "Date de fin", 
+                                            value: `${response[key].day ? response[key].day + "/" : ""}${response[key].month ? response[key].month + "/" : ""}${response[key].year || ""}`, 
+                                            inline: true 
+                                        });
+                                    }
+                                    break;
+                            }
+                        });
+                        //Afficher les champs dans un ordre précis
+                        embedFields.sort((a, b) => {
+                            const order = [ "Status", "Genres", "Nombre d'épisodes", "Studios", "Sources", "Diffuseur", "VF", "Date de sortie", "Date de fin"];
+                            return order.indexOf(a.name) - order.indexOf(b.name);
+                        });
+
+                        newEmbed.addFields(...embedFields);
+
+                        if(msg.author.id === i.user.id){
+                            button.setLabel("Voir moins...")
+                            await i.update({ embeds: [newEmbed], components: [new ActionRowBuilder().addComponents(button)] });
+                            buttonClicked = !buttonClicked;
+                        }else{
+                            i.reply({ embeds: [newEmbed], components: [], ephemeral: true });
+                        }
+                        
+                    } else {
+                        if(msg.author.id === i.user.id){
+                            button.setLabel("Voir plus...")
+                            await i.update({ embeds: [embed], components: [new ActionRowBuilder().addComponents(button)] });
+                            buttonClicked = !buttonClicked;
+                        }else{
+                            i.reply({ embeds: [embed], components: [], ephemeral: true });
+                        }
+                    }
+                });
+                collector.on('end', async () => {
+                    await message.edit({ components: [] });
+                });
+            } else if (info[1] === "user") {
+                if (info[2] === undefined || info[2] === "") return;
                 let pseudo = info[2];
-                let responseUser = await fetch(urlEndpoint+"/user/" + pseudo);
-                    let dataUser = await responseUser.text();
-                    var result = JSON.parse(dataUser);
-                    var uid = result.uid;
-                    if (result.username == undefined) {
-                      let reponseRecherche = await fetch(urlEndpoint+"/search/user/" + pseudo);
-                      let dataRecherche = await reponseRecherche.text();
-                      var resultRecherche = JSON.parse(dataRecherche);
-                      if (resultRecherche != "" || undefined) {
-                        const usernameLePlusProche = trouveLePlusProche(pseudo, resultRecherche, 'username');
-                        pseudo = usernameLePlusProche.username;
-                        let responseUser = await fetch(urlEndpoint+"/user/" + pseudo);
-                        let dataUser = await responseUser.text();
-                        var result = JSON.parse(dataUser);
-                      }
-                      else {
-                        return
-                      }
-                    }
-                    if(uid != undefined){
-                    var timestamp = result.createdAt;
-                    let date1 = new Date(timestamp * 1);
-                    let response2 = await fetch(urlEndpoint+"/progression/anime/" + uid);
-                    let data2 = await response2.text();
-                    var resultatProgression = JSON.parse(data2);
-                    var premium = "";
-                    var episodes = resultatProgression.length;
-                    var addition = 0;
-                    var i = 0;
-                    var revisionageEpisode = 0;
-                    var revisionageAnime = 0;
-                    var mois = date1.getMonth() + 1;
-                    while (i < episodes) {
-                      addition += resultatProgression[i].progression.progression;
-                      if (resultatProgression[i].progression.rewatch != undefined) {
-                        revisionageEpisode = revisionageEpisode + resultatProgression[i].progression.rewatch * resultatProgression[i].progression.progression;
-                        revisionageAnime = revisionageAnime + resultatProgression[i].progression.rewatch;
-                      }
-                      i++;
-                    }
-                    if (result.isPremium == true) {
-                      premium = "★";
-                    }
-                    const userEmbed = new EmbedBuilder()
-                      .setColor(0x0099ff)
-                      .setTitle(result.username + " " + premium)
-                      .setURL("https://hyakanime.fr/user/" + pseudo)
-                      .setAuthor({
-                        name: "Hyakanime",
-                        iconURL:
-                          logoUrl,
-                        url: "https://hyakanime.fr",
-                      })
-                      .setThumbnail(result.photoURL)
-                      .addFields(
-                        { name: "TITRE AJOUTÉS", value: "" + episodes, inline: true },
-                        { name: "\u200b", value: "\u200b", inline: true },
-                        { name: "ÉPISODES VUS", value: "" + addition, inline: true },
-                        { name: "TITRE REWATCH", value: "" + revisionageAnime, inline: true },
-                        { name: "\u200b", value: "\u200b", inline: true },
-                        { name: "ÉPISODES REWATCH", value: "" + revisionageEpisode, inline: true }
-                      )
-                      .setTimestamp()
-                      .setFooter({
-                        text:
-                          "Compte créer le " +
-                          date1.getDate() +
-                          "/" +
-                          mois +
-                          "/" +
-                          date1.getFullYear(),
-                      });
-                    await msg.suppressEmbeds(true);
-                    await msg.reply({ embeds: [userEmbed], allowedMentions: {repliedUser: false} });
-                  }
+                const { userEmbed, attachment } = await fetchUser(pseudo, EmbedBuilder, AttachmentBuilder);
+                if (userEmbed == null) {
+                    return;
+                }
+
+                await msg.suppressEmbeds(true);
+                await msg.reply({ embeds: [userEmbed], allowedMentions: { repliedUser: false }, files: [attachment] });
             }
         }
     }
 }
-
-function trouveLePlusProche(target, items, propName) {
-    return items.sort((a, b) => a[propName].localeCompare(target, undefined, { sensitivity: 'base' }) - b[propName].localeCompare(target, undefined, { sensitivity: 'base' }))[0];
-  }
-  
