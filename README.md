@@ -19,7 +19,8 @@ Bienvenue sur le répertoire du Bot Discord présent sur le serveur Hyakanime.
 2. Clonez le répertoire : `git clone https://github.com/hyakanime/discord-bot`
 3. Installez les dépendances : `npm i`
 4. Configuez le fichier `config.json`
-5. Démarrez le bot Discord : `node index.js`
+5. Lancer la commande `node deploy-commands.js`
+6. Démarrez le bot Discord : `node index.js`
 
 # Informations complémentaires 
 
