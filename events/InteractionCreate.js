@@ -1,5 +1,4 @@
 const { Events } = require('discord.js');
-const { roleMembre, rolePatchNotes, roleIos, roleAndroid, roleSite , roleBonPlan, roleGenshin} = require('../config.json');
 
 module.exports = {
 	name: Events.InteractionCreate,

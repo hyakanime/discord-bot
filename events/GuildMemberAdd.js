@@ -1,5 +1,5 @@
 const { Events, EmbedBuilder, Client, GatewayIntentBits } = require('discord.js');
-const {token, channelBienvenue} = require('../config.json');
+const {token, channelBienvenue, guildId} = require('../config.json');
 const {phrases} = require('../bienvenue.json');
 const client = new Client({
     intents: [
@@ -15,6 +15,7 @@ const client = new Client({
 module.exports = {
 	name: Events.GuildMemberAdd,
 	async execute(member) {
+    if (member.guild.id !== guildId) return;
 	let Pseudo = member.user.id;
     let number = Math.floor(Math.random() * Math.floor(phrases.length));
 
