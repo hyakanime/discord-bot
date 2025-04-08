@@ -33,7 +33,7 @@ Bienvenue sur le répertoire du Bot Discord présent sur le serveur Hyakanime.
 ### Liens utiles
 - [Hyakanime](https://hyakanime.fr)
 - [Documentation Discord.JS](https://discord.js.org/#/docs)
-
+- [Guide Discord.JS](https://discordjs.guide/#before-you-begin)
 
 
 # Crédits 
