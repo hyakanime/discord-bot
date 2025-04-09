@@ -19,6 +19,7 @@ async function fetchUser(pseudo, EmbedBuilder, AttachmentBuilder) {
         const data2 = await response2.text();
         const resultatProgression = JSON.parse(data2);
         const episodes = resultatProgression.length;
+        console.log(episodes)
         let addition = 0;
         let revisionageEpisode = 0;
         let revisionageAnime = 0;
@@ -70,9 +71,9 @@ async function createStatsCanvas(statsHyak) {
       enPause: statsHyak["4"] || 0,
       enCours: statsHyak["1"] || 0,
       termine: statsHyak["3"] || 0,
-      abandonne: statsHyak["5"] || 0
+      abandonne: statsHyak["5"] || 0,
+      total: statsHyak["total"] || 0
     };
-    stats.total = Object.values(stats).reduce((sum, val) => sum + val, 0);
   
     const colors = {
       aVoir: '#9f9f9f',
