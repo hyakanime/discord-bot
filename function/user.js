@@ -19,7 +19,6 @@ async function fetchUser(pseudo, EmbedBuilder, AttachmentBuilder) {
         const data2 = await response2.text();
         const resultatProgression = JSON.parse(data2);
         const episodes = resultatProgression.length;
-        console.log(episodes)
         let addition = 0;
         let revisionageEpisode = 0;
         let revisionageAnime = 0;
