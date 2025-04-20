@@ -1,6 +1,7 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const fetch = require("node-fetch");
 const {logoUrl, urlEndpoint} = require("../config.json");
+const diffuseurEmoji = require("../diffuseurEmoji.json");
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("agenda")
@@ -11,29 +12,16 @@ module.exports = {
                 .setDescription("Agenda afficher par Jour ou Semaine ?")
                 .setRequired(false)
                 .addChoices(
-                    { name: "Jour", value: "jour" },
-                    { name: "Semaine", value: "Semaine" }
+                    { name: "Jour", value: "day" },
+                    { name: "Semaine", value: "week" }
                 )
         ),
     async execute(interaction) {
         await interaction.deferReply({ ephemeral: true });
-        const type = interaction.options.getString("type") || "jour";
-        let start = new Date();
-        start.setHours(0, 0, 0, 0);
-        let end = new Date();
-        if (type === "jour") {
-            end.setHours(23, 59, 59, 999);
-        } else {
-            end.setDate(start.getDate() + 6);
-            end.setHours(23, 59, 59, 999);
-        }
-        const result = await fetch(`${urlEndpoint}/episode/sortie-hebdo/${start.getTime()}/${end.getTime()}`);
+        const type = interaction.options.getString("type") === "week" ? "timeline" : "day";
+        const result = await fetch(`${urlEndpoint}/agenda/${type}`);
         const data = await result.text();
         const response = JSON.parse(data);
-            let listAnime = response.map((anime) => ({
-                ...anime,
-                timestamp: Number(anime.timestamp),
-            })).sort((a, b) => a.timestamp - b.timestamp);
         const embed = new EmbedBuilder()
             .setAuthor({
                 name: "hyakanime",
@@ -44,62 +32,62 @@ module.exports = {
             .setColor("#0099ff")
             .setURL("https://hyakanime.fr/agenda")
 
-        if(type === "jour") {
+        if(type === "day") {
+            const listAnime = response.map((anime) => ({
+                ...anime,
+                timestamp: Number(anime.episode.timestamp),
+            })).sort((a, b) => a.timestamp - b.timestamp);
             embed.setTitle(`Agenda du Jour`);
-            listAnime.forEach((anime) => {
-                if(!anime.displayCalendar) return
-                const date = new Date(anime.timestamp);
+            
+            listAnime.forEach(async (anime) => {
+                if(!anime.episode.displayCalendar) return
+                const date = new Date(anime.episode.timestamp);
                 const timeString = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
+                let diffuseur = "";
+                if(anime.media.diffuseur) {
+                    //une simple vérification pour voir si le fichier diffuseurEmoji.json est rempli ou pas (si vous modifiez un texte dans le fichier ça ira dans le if)
+                    if(diffuseurEmoji["Crunchyroll"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Disney"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Netflix"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["ADN"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Prime"] !== "REMPLIR AVEC UN EMOJI") {
+                        diffuseur = await getDiffuseurEmoji(anime.media.diffuseur);
+                    }
+                }
                 embed.addFields({
                     name: `**${timeString}**`,
-                    value:`${anime.animeTitle.length > 17 ? anime.animeTitle.substring(0, 20) + "..." : anime.animeTitle} - ${anime.title}`}
+                    value:`${diffuseur} ${anime.episode.animeTitle.length > 17 ? anime.episode.animeTitle.substring(0, 20) + "..." : anime.episode.animeTitle} - ${anime.episode.title}`}
                 );
             });
-        }else if(type === "Semaine") {
+        }else if(type === "timeline") {
             embed.setTitle(`Agenda de la Semaine`);
-            const week = [[], [], [], [], [], [], []];//0 = dimanche, 1 = lundi,...  6 = samedi
-            listAnime.map((anime) => {
-                if(!anime.displayCalendar) return
-                const date = new Date(anime.timestamp);
-                const timeString = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
-                week[date.getDay()].push({
-                    name: `${anime.animeTitle.length > 17 ? anime.animeTitle.substring(0, 20) + "..." : anime.animeTitle}`,
-                    value: `${anime.title}`,
-                    timestamp: `**${timeString}**`
-                });
-            });
-            //passer le dimanche en dernier
-            week.push(week.shift());
-            week.map((day, index) => {
-                if(day.length === 0) return
-                let dayName = "";
-                switch(index) {
-                    case 0:
-                        dayName = "Lundi";
-                        break;
-                    case 1:
-                        dayName = "Mardi";
-                        break;
-                    case 2:
-                        dayName = "Mercredi";
-                        break;
-                    case 3:
-                        dayName = "Jeudi";
-                        break;
-                    case 4:
-                        dayName = "Vendredi";
-                        break;
-                    case 5:
-                        dayName = "Samedi";
-                        break;
-                    case 6:
-                        dayName = "Dimanche";
-                        break;
-                }
+            const week = [[], [], [], [], [], [], []];
+            for (let j = 0; j < response.length; j++) {
+                const listAnime = response[j].airing
+                for (let i = 0; i < listAnime.length; i++) {
+                    const anime = listAnime[i];
+                    if(!anime.displayCalendar) return
+                    const date = new Date(anime.timestamp);
+                    const timeString = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
+                    
+                    let info = {
+                        name: `${anime.animeTitle.length > 17 ? anime.animeTitle.substring(0, 20) + "..." : anime.animeTitle}`,
+                        value: `${anime.title}`,
+                        timestamp: `**${timeString}**`,
+                        date: `${date.toLocaleDateString("fr-FR", { weekday: "long" }).charAt(0).toUpperCase() + date.toLocaleDateString("fr-FR", { weekday: "long" }).slice(1)} ${date.getDate()} ${date.toLocaleDateString("fr-FR", { month: "long" })}`,
+                    }
+                    if(anime.media.diffuseur) {
+                        //une simple vérification pour voir si le fichier diffuseurEmoji.json est rempli ou pas (si vous modifiez un texte dans le fichier ça ira dans le if)
+                        if(diffuseurEmoji["Crunchyroll"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Disney"] !== "REMPLIR AVEC UN EMOJI" ||diffuseurEmoji["Netflix"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["ADN"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Prime"] !== "REMPLIR AVEC UN EMOJI") {
+                            info.diffuseur = await getDiffuseurEmoji(anime.media.diffuseur);
+                        }
+                    }
+                    
 
+                    week[j].push(info);
+                };
+            }
+            week.map((day) => {
+                if(day.length === 0) return
                 embed.addFields({
-                    name: `${dayName}`,
-                    value: day.map((anime) => `${anime.timestamp} - ${anime.name} - ${anime.value}`).join("\n")
+                    name: `${day[0].date}`,
+                    value: day.map((anime) => `${anime.timestamp} - ${anime.name} - ${anime.value} ${anime?.diffuseur ? `- ${anime.diffuseur}` : ""}`).join("\n")
                 });
             });
         }
@@ -107,3 +95,12 @@ module.exports = {
         interaction.editReply({ embeds: [embed] });
     }
 };
+
+
+async function getDiffuseurEmoji(listDiffuseur) {
+        let emoji = "";
+        Object.keys(listDiffuseur).map((key) => {
+            emoji += `${diffuseurEmoji[key]} `;
+        });
+        return emoji;
+}
