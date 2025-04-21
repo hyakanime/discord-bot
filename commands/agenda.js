@@ -39,7 +39,8 @@ module.exports = {
             })).sort((a, b) => a.timestamp - b.timestamp);
             embed.setTitle(`Agenda du Jour`);
             
-            listAnime.forEach(async (anime) => {
+            await listAnime.forEach(async (anime) => {
+                
                 if(!anime.episode.displayCalendar) return
                 const date = new Date(anime.episode.timestamp);
                 const timeString = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
@@ -52,7 +53,7 @@ module.exports = {
                 }
                 embed.addFields({
                     name: `**${timeString}**`,
-                    value:`${diffuseur} ${anime.episode.animeTitle.length > 17 ? anime.episode.animeTitle.substring(0, 20) + "..." : anime.episode.animeTitle} - ${anime.episode.title}`}
+                    value:`${diffuseur} ${anime.animeTitle ? anime.animeTitle.length > 17 ? anime.animeTitle.substring(0, 17) + "..." : anime.animeTitle : anime.media.title ? anime.media.title.length > 17 ? anime.media.title.substring(0, 17) + "..." : anime.media.title : anime.media.titleJP ? anime.media.titleJP.length > 17 ? anime.media.titleJP.substring(0, 17) + "..." : anime.media.titleJP : anime.media.romanji ? anime.media.romanji.length > 17 ? anime.media.romanji.substring(0, 17) + "..." : anime.media.romanji : "Titre inconnu"} - ${anime.episode.title}`}
                 );
             });
         }else if(type === "timeline") {
@@ -67,8 +68,8 @@ module.exports = {
                     const timeString = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
                     
                     let info = {
-                        name: `${anime.animeTitle.length > 17 ? anime.animeTitle.substring(0, 20) + "..." : anime.animeTitle}`,
-                        value: `${anime.title}`,
+                        name: `${anime.animeTitle ? anime.animeTitle.length > 12 ? anime.animeTitle.substring(0, 13) + "..." : anime.animeTitle : anime.media.title ? anime.media.title.length > 12 ? anime.media.title.substring(0, 14) + "..." : anime.media.title : anime.media.titleJP ? anime.media.titleJP.length > 12 ? anime.media.titleJP.substring(0, 14) + "..." : anime.media.titleJP : anime.media.romanji ? anime.media.romanji.length > 12 ? anime.media.romanji.substring(0, 14) + "..." : anime.media.romanji : "Titre inconnu"}`,
+                        value: `Ep ${anime.number}`,
                         timestamp: `**${timeString}**`,
                         date: `${date.toLocaleDateString("fr-FR", { weekday: "long" }).charAt(0).toUpperCase() + date.toLocaleDateString("fr-FR", { weekday: "long" }).slice(1)} ${date.getDate()} ${date.toLocaleDateString("fr-FR", { month: "long" })}`,
                     }
