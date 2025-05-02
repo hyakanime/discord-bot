@@ -53,7 +53,7 @@ module.exports = {
                 }
                 embed.addFields({
                     name: `**${timeString}**`,
-                    value:`${diffuseur} ${anime.animeTitle ? anime.animeTitle.length > 17 ? anime.animeTitle.substring(0, 17) + "..." : anime.animeTitle : anime.media.title ? anime.media.title.length > 17 ? anime.media.title.substring(0, 17) + "..." : anime.media.title : anime.media.titleJP ? anime.media.titleJP.length > 17 ? anime.media.titleJP.substring(0, 17) + "..." : anime.media.titleJP : anime.media.romanji ? anime.media.romanji.length > 17 ? anime.media.romanji.substring(0, 17) + "..." : anime.media.romanji : "Titre inconnu"} - ${anime.episode.title}`}
+                    value:`${diffuseur} ${anime.episode.animeTitle ? anime.episode.animeTitle.length > 12 ? anime.episode.animeTitle.substring(0, 13) + "..." : anime.episode.animeTitle : anime.media.title ? anime.media.title.length > 12 ? anime.media.title.substring(0, 14) + "..." : anime.media.title : anime.media.romanji ? anime.media.romanji.length > 12 ? anime.media.romanji.substring(0, 14) + "..." : anime.media.romanji : anime.media.titleJP ? anime.media.titleJP.length > 12 ? anime.media.titleJP.substring(0, 14) + "..." : anime.media.titleJP : "Titre inconnu"} - ${anime.episode.title}`}
                 );
             });
         }else if(type === "timeline") {
@@ -68,7 +68,7 @@ module.exports = {
                     const timeString = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
                     
                     let info = {
-                        name: `${anime.animeTitle ? anime.animeTitle.length > 12 ? anime.animeTitle.substring(0, 13) + "..." : anime.animeTitle : anime.media.title ? anime.media.title.length > 12 ? anime.media.title.substring(0, 14) + "..." : anime.media.title : anime.media.titleJP ? anime.media.titleJP.length > 12 ? anime.media.titleJP.substring(0, 14) + "..." : anime.media.titleJP : anime.media.romanji ? anime.media.romanji.length > 12 ? anime.media.romanji.substring(0, 14) + "..." : anime.media.romanji : "Titre inconnu"}`,
+                        name: `${anime.animeTitle ? anime.animeTitle.length > 12 ? anime.animeTitle.substring(0, 13) + "..." : anime.animeTitle : anime.media.title ? anime.media.title.length > 12 ? anime.media.title.substring(0, 14) + "..." : anime.media.title : anime.media.romanji ? anime.media.romanji.length > 12 ? anime.media.romanji.substring(0, 14) + "..." : anime.media.romanji : anime.media.titleJP ? anime.media.titleJP.length > 12 ? anime.media.titleJP.substring(0, 14) + "..." : anime.media.titleJP : "Titre inconnu"}`,
                         value: `Ep ${anime.number}`,
                         timestamp: `**${timeString}**`,
                         date: `${date.toLocaleDateString("fr-FR", { weekday: "long" }).charAt(0).toUpperCase() + date.toLocaleDateString("fr-FR", { weekday: "long" }).slice(1)} ${date.getDate()} ${date.toLocaleDateString("fr-FR", { month: "long" })}`,
@@ -86,10 +86,27 @@ module.exports = {
             }
             week.map((day) => {
                 if(day.length === 0) return
+                let length = 0;
+                const listIndex = []
                 embed.addFields({
                     name: `${day[0].date}`,
-                    value: day.map((anime) => `${anime.timestamp} - ${anime.name} - ${anime.value} ${anime?.diffuseur ? `- ${anime.diffuseur}` : ""}`).join("\n")
+                    value: day.map((anime, index) => {
+                        length += `${anime.timestamp} - ${anime.name} - ${anime.value} ${anime?.diffuseur ? `- ${anime.diffuseur}` : ""}`.length
+                        if(length > 950){
+                            listIndex.push(index);
+                            return null
+                        }
+                        return`${anime.timestamp} - ${anime.name} - ${anime.value} ${anime?.diffuseur ? `- ${anime.diffuseur}` : ""}`
+                    }).join("\n")
                 });
+                if(listIndex.length > 0) {
+                    embed.addFields({
+                        name: `${day[0].date} (suite)`,
+                        value: listIndex.map((index) => {
+                            return `${day[index].timestamp} - ${day[index].name} - ${day[index].value} ${day[index]?.diffuseur ? `- ${day[index].diffuseur}` : ""}`
+                        }).join("\n")
+                    });
+                }
             });
         }
 
@@ -101,7 +118,7 @@ module.exports = {
 async function getDiffuseurEmoji(listDiffuseur) {
         let emoji = "";
         Object.keys(listDiffuseur).map((key) => {
-            emoji += `${diffuseurEmoji[key]} `;
+            emoji += `${diffuseurEmoji[key]}`;
         });
         return emoji;
 }
