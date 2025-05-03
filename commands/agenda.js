@@ -13,12 +13,12 @@ module.exports = {
                 .setRequired(false)
                 .addChoices(
                     { name: "Jour", value: "day" },
-                    { name: "Semaine", value: "week" }
+                    { name: "Semaine", value: "timeline" }
                 )
         ),
     async execute(interaction) {
         await interaction.deferReply({ ephemeral: true });
-        const type = interaction.options.getString("type") === "week" ? "timeline" : "day";
+        const type = interaction.options.getString("type") || "day";
         const result = await fetch(`${urlEndpoint}/agenda/${type}`);
         const data = await result.text();
         const response = JSON.parse(data);
