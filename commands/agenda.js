@@ -39,8 +39,7 @@ module.exports = {
             })).sort((a, b) => a.timestamp - b.timestamp);
             embed.setTitle(`Agenda du Jour`);
             
-            await listAnime.forEach(async (anime) => {
-                
+            for(anime of listAnime) {
                 if(!anime.episode.displayCalendar) return
                 const date = new Date(anime.episode.timestamp);
                 const timeString = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
@@ -49,13 +48,14 @@ module.exports = {
                     //une simple vérification pour voir si le fichier diffuseurEmoji.json est rempli ou pas (si vous modifiez un texte dans le fichier ça ira dans le if)
                     if(diffuseurEmoji["Crunchyroll"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Disney"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Netflix"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["ADN"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Prime"] !== "REMPLIR AVEC UN EMOJI") {
                         diffuseur = await getDiffuseurEmoji(anime.media.diffuseur);
+                         // Pour éviter les problèmes de rate limit
                     }
                 }
                 embed.addFields({
                     name: `**${timeString}**`,
                     value:`${diffuseur} ${anime.episode.animeTitle ? anime.episode.animeTitle.length > 12 ? anime.episode.animeTitle.substring(0, 13) + "..." : anime.episode.animeTitle : anime.media.title ? anime.media.title.length > 12 ? anime.media.title.substring(0, 14) + "..." : anime.media.title : anime.media.romanji ? anime.media.romanji.length > 12 ? anime.media.romanji.substring(0, 14) + "..." : anime.media.romanji : anime.media.titleJP ? anime.media.titleJP.length > 12 ? anime.media.titleJP.substring(0, 14) + "..." : anime.media.titleJP : "Titre inconnu"} - ${anime.episode.title}`}
                 );
-            });
+            }
         }else if(type === "timeline") {
             embed.setTitle(`Agenda de la Semaine`);
             const week = [[], [], [], [], [], [], []];
