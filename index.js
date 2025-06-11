@@ -1,9 +1,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Partials, Client, Collection, GatewayIntentBits, EmbedBuilder } = require('discord.js');
-const { token, channelEdit, urlEndpoint } = require('./config.json');
+const { Partials, Client, Collection, GatewayIntentBits} = require('discord.js');
+const { token, channelEdit } = require('./config.json');
 const cron = require("node-cron");
-const fetch = require("node-fetch");
+const { embedEdit } = require("./function/edit.js");
 
 const client = new Client({
   intents: [
@@ -40,5 +40,12 @@ for (const file of commandFiles) {
   client.commands.set(command.data.name, command);
 }
 
-
 client.login(token);
+
+client.on('ready', () => {
+  console.log(`Connecté en tant que ${client.user.tag}`);
+  // appel de la function toutes les heures
+  cron.schedule('0 * * * *', () => { 
+    embedEdit(client, channelEdit);
+  });
+});
