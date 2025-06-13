@@ -1,5 +1,5 @@
 const { Events, Embed, EmbedBuilder, EmbedType } = require('discord.js');
-const { urlEndpoint, logoUrl } = require("../config.json");
+const { urlEndpoint, logoUrl, channelAnimeNotif } = require("../config.json");
 const schedule = require('node-schedule');
 const cron = require("node-cron");
 const fetch = require("node-fetch");
@@ -21,7 +21,11 @@ function getDiffuserUrl(listDiffuseur) {
         let diffuseursWithUrl = [];
         Object.keys(listDiffuseur).map((key) => {
             if (listDiffuseur[key] === "") return;
-            diffuseursWithUrl.push(`\n ### ${diffuseurEmoji[key]} [${key}](${listDiffuseur[key]})`);
+            if(diffuseurEmoji[key] === "REMPLIR AVEC UN EMOJI") {
+                diffuseursWithUrl.push(`\n ### [${key}](${listDiffuseur[key]})`);
+            }else {
+                diffuseursWithUrl.push(`\n ### ${diffuseurEmoji[key]} [${key}](${listDiffuseur[key]})`);
+            }
         });
         return diffuseursWithUrl;
     } catch (error) {
@@ -50,9 +54,10 @@ async function getReleasesAnime(client, isCron = false) {
                     text: `Source : Hyakanime`,
                     iconURL: logoUrl,
                 })
-            const channel = client.channels.cache.get("1380970333204647936");
+            const channel = client.channels.cache.get(channelAnimeNotif);
             if (channel) {
-                if( anime.episode.timestamp < Date.now() && isCron) {
+                console.log(`Sending notification for ${nameAnime} to channel ${channel.id}`);
+                if(true) {
                     channel.send({ embeds: [embed] }).then((message) => {
                         message.react("👁️").catch(console.error);
                     }).catch(error => {
