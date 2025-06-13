@@ -3,6 +3,7 @@
     "canvas": "^3.1.0",
     "discord.js": "^14.18.0",
     "node-cron": "^3.0.2",
-    "node-fetch": "^2.6.7"
+    "node-fetch": "^2.6.7",
+    "node-schedule": "^2.1.1"
   }
 }
