@@ -1,8 +1,5 @@
-const { SlashCommandBuilder,EmbedBuilder} = require("discord.js");
+const {EmbedBuilder} = require("discord.js");
 module.exports = {
-  data: new SlashCommandBuilder().setName("pageblanche").setDescription(
-    "Explication sur les pages blanche."
-  ),
   async execute(interaction) {
     const embed = new EmbedBuilder()
       .setAuthor({ name: "📄 Page Blanche" })
