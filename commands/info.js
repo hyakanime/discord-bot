@@ -5,6 +5,8 @@ const subcommands = {
     pageblanche: require('./info/pageblanche'),
     embed: require('./info/embed'),
     down: require('./info/down'),
+    streaming: require('./info/streaming'),
+    soumission: require('./info/soumission'),
 };
 
 module.exports = {
@@ -22,7 +24,15 @@ module.exports = {
         .addSubcommand(subcommand =>
             subcommand
                 .setName('down')
-                .setDescription('Plus rien ne marche ? Informez tout le monde comme ça !')),
+                .setDescription('Plus rien ne marche ? Informez tout le monde comme ça !'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('streaming')
+                .setDescription('Explication sur le lien entre Hyakanime et le streaming.'))
+        .addSubcommand(subcommand =>
+            subcommand
+                .setName('soumission')
+                .setDescription('Explication sur la soumission de fiche anime.')),
     async execute(interaction) {
         const subCommand = interaction.options.getSubcommand();
 
