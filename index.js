@@ -1,9 +1,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Partials, Client, Collection, GatewayIntentBits} = require('discord.js');
-const { token, channelEdit } = require('./config.json');
+const { token, channelEdit, mongoURI } = require('./config.json');
 const cron = require("node-cron");
 const { embedEdit } = require("./function/edit.js");
+const mongoose = require('mongoose');
 
 const client = new Client({
   intents: [
@@ -14,15 +15,13 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
   ],
   partials: [Partials.Channel],
-}
-);
+});
 
 client.commands = new Collection();
 const commandsPath = path.join(__dirname, 'commands');
 const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 const eventsPath = path.join(__dirname, 'events');
 const eventFiles = fs.readdirSync(eventsPath).filter(file => file.endsWith('.js'));
-
 
 for (const file of eventFiles) {
   const filePath = path.join(eventsPath, file);
@@ -40,12 +39,22 @@ for (const file of commandFiles) {
   client.commands.set(command.data.name, command);
 }
 
+// Connexion à MongoDB sans les options dépréciées
+mongoose.connect(mongoURI)
+  .then(() => {
+    console.log('Connecté à MongoDB');
+  })
+  .catch(err => {
+    console.error('Erreur de connexion à MongoDB:', err);
+  });
+
 client.login(token);
 
 client.on('ready', () => {
+  embedEdit(client, channelEdit);
   console.log(`Connecté en tant que ${client.user.tag}`);
-  // appel de la function toutes les heures
-  cron.schedule('0 * * * *', () => { 
+  // appel de la fonction toutes les heures
+  cron.schedule('0 * * * *', () => {
     embedEdit(client, channelEdit);
   });
 });
