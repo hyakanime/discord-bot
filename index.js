@@ -52,7 +52,6 @@ client.login(token);
 
 client.on('ready', () => {
   embedEdit(client, channelEdit);
-  console.log(`Connecté en tant que ${client.user.tag}`);
   // appel de la fonction toutes les heures
   cron.schedule('0 * * * *', () => {
     embedEdit(client, channelEdit);
