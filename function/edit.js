@@ -1,35 +1,56 @@
 const { EmbedBuilder } = require('discord.js');
 const { tokenHyakanime } = require("../config.json");
-const fs = require('fs');
-const path = require('path');
+const mongoose = require('mongoose');
+
+// Définir le modèle Status
+const statusSchema = new mongoose.Schema({
+  lastStatus: {
+    type: Boolean,
+    required: true
+  },
+  consecutiveRejections: {
+    type: Number,
+    default: 0
+  }
+});
+
+const Status = mongoose.model('Status', statusSchema);
 
 let lastStatus = null;
 let consecutiveRejections = 0;
 
-function readStatusFromFile() {
+async function readStatusFromDB() {
     try {
-        const data = fs.readFileSync(path.join(__dirname, 'status.json'), 'utf8');
-        return JSON.parse(data);
+        const status = await Status.findOne();
+        if (status) {
+            lastStatus = status.lastStatus;
+            consecutiveRejections = status.consecutiveRejections;
+        }
+        return status;
     } catch (error) {
-        // Si le fichier n'existe pas ou qu'il y a une erreur, retourner null
+        console.error('Erreur lors de la lecture du statut depuis la base de données:', error);
         return null;
     }
 }
 
-function writeStatusToFile(status) {
-    const data = JSON.stringify({ lastStatus: status });
-    fs.writeFileSync(path.join(__dirname, 'status.json'), data, 'utf8');
+async function writeStatusToDB(status, consecutiveRejections) {
+    try {
+        await Status.updateOne(
+            {},
+            { lastStatus: status, consecutiveRejections: consecutiveRejections },
+            { upsert: true }
+        );
+    } catch (error) {
+        console.error(`Erreur lors de l'écriture du statut dans la base de données:`, error);
+    }
 }
 
 async function embedEdit(client, channelId) {
     if (!client?.channels || !channelId) return;
 
     try {
-        // Lire le dernier statut depuis le fichier JSON
-        const statusData = readStatusFromFile();
-        if (statusData) {
-            lastStatus = statusData.lastStatus;
-        }
+        // Lire le dernier statut depuis la base de données
+        await readStatusFromDB();
 
         const response = await fetch("https://api-v3.hyakanime.fr/auth/refresh", {
             headers: { authorization: `Token ${tokenHyakanime}` },
@@ -51,8 +72,8 @@ async function embedEdit(client, channelId) {
                     .setTimestamp()] });
                 if (!isAccepted && !(consecutiveRejections % 24)) consecutiveRejections = 0;
                 lastStatus = isAccepted;
-                // Écrire le nouveau statut dans le fichier JSON
-                writeStatusToFile(lastStatus);
+                // Écrire le nouveau statut dans la base de données
+                await writeStatusToDB(lastStatus, consecutiveRejections);
             }
         }
     } catch (error) {
