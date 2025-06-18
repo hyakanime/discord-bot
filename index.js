@@ -51,7 +51,6 @@ mongoose.connect(mongoURI)
 client.login(token);
 
 client.on('ready', () => {
-  embedEdit(client, channelEdit);
   // appel de la fonction toutes les heures
   cron.schedule('0 * * * *', () => {
     embedEdit(client, channelEdit);
