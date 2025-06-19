@@ -5,7 +5,7 @@ const GuildSettings = require('../models/GuildSettings');
 // Importer dynamiquement les sous-commandes avec les chemins corrects
 const subcommands = {
     view: require('./settings/view'),
-    welcome: require('./settings/welcome'),
+    welcome: require('./settings/bienvenue'),
     embedlink: require('./settings/embedlink'),
     editalert: require('./settings/editalert'),
     reset: require('./settings/reset'),
@@ -20,7 +20,7 @@ module.exports = {
             subcommand.setName('view')
                 .setDescription('Afficher les paramètres actuels du serveur'))
         .addSubcommand(subcommand =>
-            subcommand.setName('welcome')
+            subcommand.setName('bienvenue')
                 .setDescription('Configurer les paramètres de bienvenue')
                 .addBooleanOption(option =>
                     option.setName('enable')
