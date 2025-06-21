@@ -2,11 +2,7 @@
 	"token": "REMPLIR-AVEC-LE-TOKEN-DU-BOT",
 	"applicationId" : "REMPLIR-AVEC-L-APPLICATION-ID-DU-BOT",
 	"mongoURI": "Lien de votre base de données",
-	"guildId": "805391427680862248",
 	"tokenHyakanime": "Remplir avec le token de l'api hyakanime",
-	"channelBeta": "1036762035645599755",
-	"channelEdit":"954454349210337361",
-	"channelBienvenue": "846317312327811092",
 	"logoUrl": "https://cdn-hyakanime.s3.eu-west-3.amazonaws.com/logo-hyakanime.png", 
 	"urlEndpoint": "https://api-v3.hyakanime.fr"
 }
