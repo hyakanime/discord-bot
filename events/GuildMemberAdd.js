@@ -1,6 +1,6 @@
-const { Events, EmbedBuilder } = require('discord.js');
-const { guildId, channelBienvenue } = require('../config.json');
+const { Events, EmbedBuilder, PermissionsBitField } = require('discord.js');
 const mongoose = require('mongoose');
+const GuildSettings = require('../models/GuildSettings');
 
 // Définir le modèle pour les phrases de bienvenue
 const welcomePhraseSchema = new mongoose.Schema({
@@ -11,7 +11,7 @@ const welcomePhraseSchema = new mongoose.Schema({
   }
 }, {
   timestamps: true,
-  collection: 'bienvenue' // Nom explicite de la collection
+  collection: 'bienvenue'
 });
 
 const WelcomePhrase = mongoose.model('WelcomePhrase', welcomePhraseSchema);
@@ -19,11 +19,7 @@ const WelcomePhrase = mongoose.model('WelcomePhrase', welcomePhraseSchema);
 // Fonction pour récupérer une phrase aléatoire
 async function getRandomWelcomePhrase() {
   try {
-    // Utilise $sample pour sélectionner une phrase aléatoire directement dans la requête
-    const randomPhrase = await WelcomePhrase.aggregate([
-      { $sample: { size: 1 } }
-    ]);
-
+    const randomPhrase = await WelcomePhrase.aggregate([{ $sample: { size: 1 } }]);
     return randomPhrase.length > 0 ? randomPhrase[0].text : null;
   } catch (error) {
     console.error('Erreur lors de la récupération d\'une phrase aléatoire:', error);
@@ -34,19 +30,51 @@ async function getRandomWelcomePhrase() {
 module.exports = {
   name: Events.GuildMemberAdd,
   async execute(member) {
-    // Vérifier que le membre est du bon serveur
-    if (member.guild.id !== guildId) return;
-
     try {
+      // Récupérer les paramètres du serveur
+      const guildId = member.guild.id;
+      const settings = await GuildSettings.findOne({ guildId });
+
+      // Si aucun paramètre ou bienvenue désactivée, on sort
+      if (!settings?.welcomeEnabled) return;
+
       // Récupérer une phrase aléatoire
       const welcomePhrase = await getRandomWelcomePhrase();
-
       if (!welcomePhrase) {
         console.log('Aucune phrase de bienvenue disponible dans la base de données');
         return;
       }
 
-      // Créer l'embed de bienvenue
+      // Vérifier si un canal est configuré
+      if (!settings.welcomeChannelId) {
+        console.log(`Bienvenue activée mais aucun canal configuré pour le serveur ${member.guild.name} (${guildId})`);
+        // Optionnel: Envoyer un message aux admins du serveur
+        return;
+      }
+
+      // Récupérer le canal
+      let channel;
+      try {
+        channel = await member.guild.channels.fetch(settings.welcomeChannelId);
+      } catch (error) {
+        console.error(`Erreur lors de la récupération du canal de bienvenue pour le serveur ${member.guild.name}:`, error);
+        return;
+      }
+
+      // Vérifier que le canal existe et est textuel
+      if (!channel || !channel.isTextBased()) {
+        console.log(`Le canal configuré (${settings.welcomeChannelId}) n'est pas un canal textuel ou n'existe pas dans ${member.guild.name}`);
+        return;
+      }
+
+      // Vérifier les permissions du bot
+      const botPermissions = channel.permissionsFor(member.guild.members.me);
+      if (!botPermissions || !botPermissions.has(PermissionsBitField.Flags.SendMessages)) {
+        console.log(`Le bot n'a pas la permission d'envoyer des messages dans le canal ${channel.name} sur ${member.guild.name}`);
+        return;
+      }
+
+      // Créer et envoyer l'embed
       const embedBienvenue = new EmbedBuilder()
         .setTitle("Nouveau membre !")
         .setDescription(welcomePhrase.replace("*", `<@${member.user.id}>`))
@@ -55,17 +83,12 @@ module.exports = {
         .setColor('#35B0FF')
         .setTimestamp();
 
-      // Récupérer le canal et envoyer le message
-      const channel = member.guild.channels.cache.get(channelBienvenue);
-      if (channel?.isTextBased()) {
-        await channel.send({ embeds: [embedBienvenue] });
-      } else {
-        console.log('Le canal de bienvenue n\'existe pas ou n\'est pas un canal textuel');
-      }
+      await channel.send({ embeds: [embedBienvenue] });
+      console.log(`Message de bienvenue envoyé à ${member.user.tag} dans le serveur ${member.guild.name}`);
+
     } catch (error) {
-      console.error('Erreur lors de l\'envoi du message de bienvenue:', error);
+      console.error(`Erreur lors du traitement du nouvel arrivant ${member.user.tag} dans ${member.guild.name}:`, error);
     }
   },
-  // Exporter aussi le modèle pour pouvoir l'utiliser ailleurs si besoin
   WelcomePhrase
 };

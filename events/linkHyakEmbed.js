@@ -2,11 +2,18 @@ const { Events, EmbedBuilder, AttachmentBuilder, ButtonBuilder, ButtonStyle, Act
 const fetch = require("node-fetch");
 const { logoUrl, urlEndpoint } = require("../config.json");
 const { fetchUser } = require("../function/user.js");
+const GuildSettings = require('../models/GuildSettings');
+
 module.exports = {
     name: Events.MessageCreate,
     async execute(msg) {
-        if (msg.author.bot) return;
-        if (msg.content === null) return;
+
+        if (msg.author.bot || !msg.content) return;
+         // Récupérer les paramètres du serveur
+        const guildSettings = await GuildSettings.findOne({ guildId: msg.guild.id });
+
+        // Vérifier si l'embed de lien est activé pour ce serveur
+        if (!guildSettings?.hyakanimeLinkEmbedEnabled) return;
         msg.content = msg.content.toLowerCase();
         if (!msg.content.includes("://")) return;
         const message = msg.content;

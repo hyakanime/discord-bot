@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { Partials, Client, Collection, GatewayIntentBits} = require('discord.js');
-const { token, channelEdit, mongoURI } = require('./config.json');
+const { token, mongoURI } = require('./config.json');
 const cron = require("node-cron");
 const { embedEdit } = require("./function/edit.js");
 const mongoose = require('mongoose');
@@ -53,6 +53,6 @@ client.login(token);
 client.on('ready', () => {
   // appel de la fonction toutes les heures
   cron.schedule('0 * * * *', () => {
-    embedEdit(client, channelEdit);
+    embedEdit(client);
   });
 });
