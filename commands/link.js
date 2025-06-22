@@ -68,7 +68,7 @@ module.exports = {
   },
 
   async execute(interaction) {
-    await interaction.deferReply({ ephemeral: true });
+    await interaction.deferReply({ flags: 64 });
     const hyakanimePseudo = interaction.options.getString("pseudo");
     const discordUser = interaction.user;
     const discordId = discordUser.id;

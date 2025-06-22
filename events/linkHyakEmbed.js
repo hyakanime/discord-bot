@@ -180,7 +180,7 @@ module.exports = {
                             await i.update({ embeds: [newEmbed], components: [new ActionRowBuilder().addComponents(button)] });
                             buttonClicked = !buttonClicked;
                         }else{
-                            i.reply({ embeds: [newEmbed], components: [], ephemeral: true });
+                            i.reply({ embeds: [newEmbed], components: [], flags: 64 });
                         }
                         
                     } else {
@@ -189,7 +189,7 @@ module.exports = {
                             await i.update({ embeds: [embed], components: [new ActionRowBuilder().addComponents(button)] });
                             buttonClicked = !buttonClicked;
                         }else{
-                            i.reply({ embeds: [embed], components: [], ephemeral: true });
+                            i.reply({ embeds: [embed], components: [], flags: 64 });
                         }
                     }
                 });

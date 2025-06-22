@@ -17,13 +17,13 @@ module.exports = {
           await interaction.channel.bulkDelete(nombre);
           interaction.reply({
             content: nombre + " messages supprimés !",
-            ephemeral: true,
+            flags: 64,
           });
         } catch (e) {
           interaction.reply({
             content:
               "Vous ne pouvez pas supprimer les messages datant maximum de 14 jours",
-            ephemeral: true,
+            flags: 64,
           });
         }
     } 

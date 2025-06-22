@@ -16,7 +16,7 @@ module.exports = {
                 )
         ),
     async execute(interaction) {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: 64 });
         const type = interaction.options.getString("type") || "jour";
         let start = new Date();
         start.setHours(0, 0, 0, 0);

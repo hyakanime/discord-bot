@@ -17,7 +17,7 @@ module.exports = {
 		} catch (error) {
 			console.error(`Error executing ${interaction.commandName}`);
 			console.error(error);
-            await interaction.reply({ content: 'Il y a eu une erreur lors de l’exécution de cette commande !', ephemeral: true });
+            await interaction.reply({ content: 'Il y a eu une erreur lors de l’exécution de cette commande !', flags: 64 });
 		}
 	}else if (interaction.isAutocomplete()) {
 		const command = interaction.client.commands.get(interaction.commandName);
