@@ -15,12 +15,4 @@ module.exports = async function(interaction, settings) {
     } else if (interaction.options.get('channel') !== null) {
         settings.welcomeChannelId = undefined;
     }
-
-    if (settings.welcomeEnabled && !settings.welcomeChannelId) {
-    }        setTimeout(async () => {
-            await interaction.followUp({
-                content: '⚠️ Attention: La bienvenue est activée mais aucun canal n\'est spécifié. Les messages de bienvenue ne seront pas envoyés.',
-                flags: 64
-            });
-        }, 100);
 };

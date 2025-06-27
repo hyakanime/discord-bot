@@ -1,21 +1,7 @@
 const { EmbedBuilder } = require('discord.js');
 const { tokenHyakanime } = require("../config.json");
-const mongoose = require('mongoose');
 const GuildSettings = require('../models/GuildSettings');
-
-// Définir le modèle Status
-const statusSchema = new mongoose.Schema({
-  lastStatus: {
-    type: Boolean,
-    required: true
-  },
-  consecutiveRejections: {
-    type: Number,
-    default: 0
-  }
-});
-
-const Status = mongoose.model('Status', statusSchema);
+const Status = require ('../models/Status');
 
 let lastStatus = null;
 let consecutiveRejections = 0;
@@ -85,9 +71,8 @@ async function embedEdit(client) {
                     const channel = await client.channels.fetch(guildSettings.editAlertChannelId);
                     if (channel && channel.isTextBased()) {
                         await channel.send({ embeds: [alertEmbed] });
-                        console.log(`Notification envoyée dans le canal ${channel.name} (${guildSettings.guildId})`);
                     } else {
-                        console.log(`Canal introuvable ou invalide pour le serveur ${guildSettings.guildId}`);
+                        console.error(`Canal introuvable ou invalide pour le serveur ${guildSettings.guildId}`);
                     }
                 } catch (error) {
                     console.error(`Erreur lors de l'envoi de la notification au serveur ${guildSettings.guildId}:`, error.message);

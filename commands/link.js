@@ -1,24 +1,7 @@
 const { SlashCommandBuilder } = require("discord.js");
 const { urlEndpoint } = require("../config.json");
-const mongoose = require('mongoose');
-const fetch = require("node-fetch");
+const UserLink = require('../models/UserLink.js');
 let timeoutId;
-
-const userLinkSchema = new mongoose.Schema({
-  discordId: { type: String, required: true, unique: true },
-  discordUsername: { type: String, required: true },
-  hyakanimePseudo: { type: String, required: true },
-  hyakanimeUid: { type: String, required: true },
-  createdAt: { type: Date, default: Date.now },
-  updatedAt: { type: Date, default: Date.now }
-});
-
-userLinkSchema.pre('save', function(next) {
-  this.updatedAt = new Date();
-  next();
-});
-
-const UserLink = mongoose.model('UserLink', userLinkSchema);
 
 async function checkHyakanimeUserExists(pseudo) {
   try {

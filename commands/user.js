@@ -1,18 +1,9 @@
 const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require("discord.js");
 const { urlEndpoint } = require("../config.json");
 const { fetchUser } = require("../function/user.js");
-const mongoose = require('mongoose');
+const UserEmbedCache = require('../models/UserEmbedCache');
 let timeoutId;
 
-const userEmbedCacheSchema = new mongoose.Schema({
-  pseudo: { type: String, required: true, unique: true, index: true },
-  userEmbed: { type: Object, required: true },
-  attachment: { type: Buffer, required: true },
-  attachmentName: { type: String, required: true },
-  expiresAt: { type: Date, required: true, index: true }
-}, { timestamps: true, collection: 'user_embeds_cache' });
-
-const UserEmbedCache = mongoose.model('UserEmbedCache', userEmbedCacheSchema);
 
 async function getFromCache(pseudo) {
   try {

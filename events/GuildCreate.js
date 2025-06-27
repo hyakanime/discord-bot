@@ -1,4 +1,4 @@
-const { Events, ChannelType } = require('discord.js');
+const { Events} = require('discord.js');
 const GuildSettings = require('../models/GuildSettings'); // Adaptez le chemin selon votre structure
 
 module.exports = {
