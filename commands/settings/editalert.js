@@ -17,6 +17,11 @@ module.exports = async function(interaction, settings) {
     }
 
     if (settings.editAlertEnabled && !settings.editAlertChannelId) {
-        await interaction.editReply('⚠️ Attention: Les alertes d\'édition sont activées mais aucun canal n\'est spécifié. Les alertes ne seront pas envoyées.');
+        setTimeout(async () => {
+            await interaction.followUp({
+                content: '⚠️ Attention: Les alertes d\'édition sont activées mais aucun canal n\'est spécifié. Les alertes ne seront pas envoyées.',
+                flags: 64
+            });
+        }, 100);
     }
 };

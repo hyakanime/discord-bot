@@ -17,6 +17,10 @@ module.exports = async function(interaction, settings) {
     }
 
     if (settings.welcomeEnabled && !settings.welcomeChannelId) {
-        await interaction.editReply('⚠️ Attention: La bienvenue est activée mais aucun canal n\'est spécifié. Les messages de bienvenue ne seront pas envoyés.');
-    }
+    }        setTimeout(async () => {
+            await interaction.followUp({
+                content: '⚠️ Attention: La bienvenue est activée mais aucun canal n\'est spécifié. Les messages de bienvenue ne seront pas envoyés.',
+                flags: 64
+            });
+        }, 100);
 };
