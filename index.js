@@ -39,7 +39,6 @@ for (const file of commandFiles) {
   client.commands.set(command.data.name, command);
 }
 
-// Connexion à MongoDB sans les options dépréciées
 mongoose.connect(mongoURI)
   .then(() => {
     console.log('Connecté à MongoDB');
