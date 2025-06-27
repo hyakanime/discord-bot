@@ -25,7 +25,7 @@ module.exports = {
                 .addBooleanOption(option =>
                     option.setName('enable')
                         .setDescription('Activer ou désactiver la bienvenue')
-                        .setRequired(false))
+                        .setRequired(true))
                 .addChannelOption(option =>
                     option.setName('channel')
                         .setDescription('Le canal pour les messages de bienvenue')
@@ -37,14 +37,14 @@ module.exports = {
                 .addBooleanOption(option =>
                     option.setName('enable')
                         .setDescription('Activer ou désactiver l\'embed de lien Hyakanime')
-                        .setRequired(false)))
+                        .setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand.setName('editalert')
                 .setDescription('Configurer les paramètres d\'alerte d\'édition')
                 .addBooleanOption(option =>
                     option.setName('enable')
                         .setDescription('Activer ou désactiver les alertes d\'édition')
-                        .setRequired(false))
+                        .setRequired(true))
                 .addChannelOption(option =>
                     option.setName('channel')
                         .setDescription('Le canal pour les alertes d\'édition')

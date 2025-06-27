@@ -20,9 +20,7 @@ module.exports = {
                     // Les autres champs auront leurs valeurs par défaut définies dans le schéma
                 });
                 await newGuildSettings.save();
-                console.log(`Paramètres par défaut enregistrés pour le serveur: ${guild.name || guild.id}`);
             } else {
-                console.log(`Le serveur ${guild.name || guild.id} existe déjà dans la base de données. Mise à jour du nom si nécessaire.`);
                 // Mise à jour conditionnelle du nom
                 if ((guild.name && existingSettings.guildName !== guild.name) ||
                     (!guild.name && existingSettings.guildName !== null)) {

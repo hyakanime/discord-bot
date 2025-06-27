@@ -21,7 +21,6 @@ module.exports = {
       const guildId = member.guild.id;
       const settings = await GuildSettings.findOne({ guildId });
 
-      // Si aucun paramètre ou bienvenue désactivée, on sort
       if (!settings?.welcomeEnabled) return;
 
       // Récupérer une phrase aléatoire
