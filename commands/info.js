@@ -42,10 +42,10 @@ module.exports = {
                 await subcommands[subCommand].execute(interaction);
             } catch (error) {
                 console.error(`Erreur lors de l'exécution de la sous-commande ${subCommand}:`, error);
-                await interaction.reply({ content: 'Une erreur est survenue lors de l\'exécution de cette sous-commande.', ephemeral: true });
+                await interaction.reply({ content: 'Une erreur est survenue lors de l\'exécution de cette sous-commande.', flags: 64 });
             }
         } else {
-            await interaction.reply({ content: 'Sous-commande non reconnue.', ephemeral: true });
+            await interaction.reply({ content: 'Sous-commande non reconnue.', flags: 64 });
         }
     },
 };
