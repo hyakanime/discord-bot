@@ -1,5 +1,5 @@
 const { Events, Embed, EmbedBuilder, EmbedType } = require('discord.js');
-const { urlEndpoint, logoUrl, channelAnimeNotif } = require("../config.json");
+const { urlEndpoint, logoUrl } = require("../config.json");
 const schedule = require('node-schedule');
 const cron = require("node-cron");
 const fetch = require("node-fetch");
