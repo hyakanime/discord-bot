@@ -56,8 +56,7 @@ async function getReleasesAnime(client, isCron = false) {
                 })
             const channel = client.channels.cache.get(channelAnimeNotif);
             if (channel) {
-                console.log(`Sending notification for ${nameAnime} to channel ${channel.id}`);
-                if(true) {
+                if(anime.episode.timestamp < Date.now() && isCron) {
                     channel.send({ embeds: [embed] }).then((message) => {
                         message.react("👁️").catch(console.error);
                     }).catch(error => {
