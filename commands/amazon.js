@@ -36,10 +36,10 @@ module.exports = {
           "Voici le lien affilié \n" +
           urlFinal +
           "\nMerci de soutenir Hyakanime 💙",
-        ephemeral: true,
+        flags: 64,
       });
     } else {
-      interaction.reply({ content: "Format d'url invalide", ephemeral: true });
+      interaction.reply({ content: "Format d'url invalide", flags: 64 });
     }
   },
 };
