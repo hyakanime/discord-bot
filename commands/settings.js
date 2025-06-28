@@ -9,6 +9,7 @@ const subcommands = {
     embedlink: require('./settings/embedlink'),
     editalert: require('./settings/editalert'),
     reset: require('./settings/reset'),
+    "anime-notif": require('./settings/animeNotif')
 };
 
 module.exports = {
@@ -29,6 +30,18 @@ module.exports = {
                 .addChannelOption(option =>
                     option.setName('channel')
                         .setDescription('Le canal pour les messages de bienvenue')
+                        .addChannelTypes(ChannelType.GuildText)
+                        .setRequired(false)))
+        .addSubcommand(subcommand =>
+            subcommand.setName('anime-notif')
+                .setDescription('Configurer les paramètres de notification d\'anime')
+                .addBooleanOption(option =>
+                    option.setName('enable')
+                        .setDescription('Activer ou désactiver les notifications d\'anime')
+                        .setRequired(true))
+                .addChannelOption(option =>
+                    option.setName('channel')
+                        .setDescription('Le canal pour les messages de notification d\'anime')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(false)))
         .addSubcommand(subcommand =>

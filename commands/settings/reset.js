@@ -10,6 +10,8 @@ module.exports = async function(interaction, settings) {
     settings.hyakanimeLinkEmbedEnabled = false;
     settings.editAlertEnabled = false;
     settings.editAlertChannelId = undefined;
+    settings.animeNotifEnabled = false;
+    settings.animeNotifChannelId = undefined;
 
     await settings.save();
     await interaction.editReply('Tous les paramètres ont été réinitialisés à leurs valeurs par défaut.');
