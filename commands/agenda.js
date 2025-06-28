@@ -17,7 +17,7 @@ module.exports = {
                 )
         ),
     async execute(interaction) {
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: 64 });
         const type = interaction.options.getString("type") || "day";
         const result = await fetch(`${urlEndpoint}/agenda/${type}`);
         const data = await result.text();
