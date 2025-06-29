@@ -1,5 +1,4 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
-const fetch = require("node-fetch");
 const {logoUrl, urlEndpoint} = require("../config.json");
 const diffuseurEmoji = require("../diffuseurEmoji.json");
 module.exports = {
