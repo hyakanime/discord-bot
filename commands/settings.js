@@ -9,7 +9,8 @@ const subcommands = {
     embedlink: require('./settings/embedlink'),
     editalert: require('./settings/editalert'),
     reset: require('./settings/reset'),
-    "anime-notif": require('./settings/animeNotif')
+    "anime-notif": require('./settings/animeNotif'),
+    feur: require('./settings/feur')
 };
 
 module.exports = {
@@ -63,6 +64,13 @@ module.exports = {
                         .setDescription('Le canal pour les alertes d\'édition')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(false)))
+        .addSubcommand(subcommand =>
+            subcommand.setName('feur')
+                .setDescription('Configure les pamatères pour le feur')
+                .addBooleanOption(option =>
+                    option.setName('enable')
+                        .setDescription('Activer ou désactiver le feur a chaque quoi sur le serveur')
+                        .setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand.setName('reset')
                 .setDescription('Réinitialiser tous les paramètres à leurs valeurs par défaut')

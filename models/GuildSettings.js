@@ -10,6 +10,7 @@ const guildSettingsSchema = new mongoose.Schema({
   editAlertChannelId: { type: String, default: undefined },
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now },
+  feurEnabled: { type: Boolean, default: false },
   animeNotifEnabled: { type: Boolean, default: false },
   animeNotifChannelId: { type: String, default: undefined },
 });

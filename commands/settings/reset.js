@@ -12,6 +12,7 @@ module.exports = async function(interaction, settings) {
     settings.editAlertChannelId = undefined;
     settings.animeNotifEnabled = false;
     settings.animeNotifChannelId = undefined;
+    settings.feurEnabled = false;
 
     await settings.save();
     await interaction.editReply('Tous les paramètres ont été réinitialisés à leurs valeurs par défaut.');
