@@ -59,12 +59,14 @@ async function getReleasesAnime(client, isCron = false) {
                                 text: `Source : Hyakanime`,
                                 iconURL: logoUrl,
                             })
-                            if (anime.episode.timestamp < Date.now() && isCron) {
-                                channel.send({ embeds: [embed] }).then((message) => {
-                                    message.react("👁️").catch(console.error);
-                                }).catch(error => {
-                                    console.error("Error sending message:", error);
-                                });
+                            if (anime.episode.timestamp < Date.now()) {
+                                if(isCron){
+                                    channel.send({ embeds: [embed] }).then((message) => {
+                                        message.react("👁️").catch(console.error);
+                                    }).catch(error => {
+                                        console.error("Error sending message:", error);
+                                    });
+                                }
                                 return;
                             } else {
                                 schedule.scheduleJob(new Date(anime.episode.timestamp), () => {
