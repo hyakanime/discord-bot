@@ -20,7 +20,7 @@ function getDiffuserUrl(listDiffuseur) {
         let diffuseursWithUrl = [];
         Object.keys(listDiffuseur).map((key) => {
             if (listDiffuseur[key] === "") return;
-            if (diffuseurEmoji[key] === "REMPLIR AVEC UN EMOJI") {
+            if (diffuseurEmoji[key] === undefined || diffuseurEmoji[key] === "REMPLIR AVEC UN EMOJI") {
                 diffuseursWithUrl.push(`\n ### [${key}](${listDiffuseur[key]})`);
             } else {
                 diffuseursWithUrl.push(`\n ### ${diffuseurEmoji[key]} [${key}](${listDiffuseur[key]})`);
