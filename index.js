@@ -1,6 +1,6 @@
 const fs = require('node:fs');
 const path = require('node:path');
-const { Partials, Client, Collection, GatewayIntentBits} = require('discord.js');
+const { Partials, Client, Collection, GatewayIntentBits } = require('discord.js');
 const { token, mongoURI } = require('./config.json');
 const cron = require("node-cron");
 const { embedEdit } = require("./function/edit.js");
@@ -45,7 +45,19 @@ mongoose.connect(mongoURI)
   })
   .catch(err => {
     console.error('Erreur de connexion à MongoDB:', err);
+    process.exit(1);
   });
+
+mongoose.connection.on('disconnected', () => {
+  console.error('Déconnecté de MongoDB, arrêt du bot.');
+  process.exit(1);
+});
+
+mongoose.connection.on('error', err => {
+  console.error('Erreur de connexion MongoDB:', err);
+  process.exit(1);
+});
+
 
 client.login(token);
 
