@@ -9,11 +9,7 @@ module.exports = {
     async execute(msg) {
 
         if (msg.author.bot || !msg.content) return;
-         // Récupérer les paramètres du serveur
-        const guildSettings = await GuildSettings.findOne({ guildId: msg.guild.id });
 
-        // Vérifier si l'embed de lien est activé pour ce serveur
-        if (!guildSettings?.hyakanimeLinkEmbedEnabled) return;
         msg.content = msg.content.toLowerCase();
         if (!msg.content.includes("://")) return;
         const message = msg.content;
@@ -22,6 +18,11 @@ module.exports = {
         if (!link) return;
         let info = link.replace("https://", "").replace("http://", "").replace("www.", "").split("/");
         if (info[0] === "hyakanime.fr") {
+        // Récupérer les paramètres du serveur
+        const guildSettings = await GuildSettings.findOne({ guildId: msg.guild.id });
+
+        // Vérifier si l'embed de lien est activé pour ce serveur
+        if (!guildSettings?.hyakanimeLinkEmbedEnabled) return;
             if (info[1] === "anime") {
                 if (info[2] === undefined || info[2] === "") return;
                 let buttonClicked = false;

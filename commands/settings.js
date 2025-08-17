@@ -9,6 +9,8 @@ const subcommands = {
     embedlink: require('./settings/embedlink'),
     editalert: require('./settings/editalert'),
     reset: require('./settings/reset'),
+    "anime-notif": require('./settings/animeNotif'),
+    feur: require('./settings/feur')
 };
 
 module.exports = {
@@ -32,6 +34,18 @@ module.exports = {
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(false)))
         .addSubcommand(subcommand =>
+            subcommand.setName('anime-notif')
+                .setDescription('Configurer les paramètres de notification d\'anime')
+                .addBooleanOption(option =>
+                    option.setName('enable')
+                        .setDescription('Activer ou désactiver les notifications d\'anime')
+                        .setRequired(true))
+                .addChannelOption(option =>
+                    option.setName('channel')
+                        .setDescription('Le canal pour les messages de notification d\'anime')
+                        .addChannelTypes(ChannelType.GuildText)
+                        .setRequired(false)))
+        .addSubcommand(subcommand =>
             subcommand.setName('embedlink')
                 .setDescription('Configurer les paramètres de l\'embed de lien Hyakanime')
                 .addBooleanOption(option =>
@@ -50,6 +64,13 @@ module.exports = {
                         .setDescription('Le canal pour les alertes d\'édition')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(false)))
+        .addSubcommand(subcommand =>
+            subcommand.setName('feur')
+                .setDescription('Configure les pamatères pour le feur')
+                .addBooleanOption(option =>
+                    option.setName('enable')
+                        .setDescription('Activer ou désactiver le feur a chaque quoi sur le serveur')
+                        .setRequired(true)))
         .addSubcommand(subcommand =>
             subcommand.setName('reset')
                 .setDescription('Réinitialiser tous les paramètres à leurs valeurs par défaut')

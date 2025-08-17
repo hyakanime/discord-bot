@@ -45,3 +45,4 @@ Bienvenue sur le répertoire du Bot Discord présent sur le serveur Hyakanime.
 | Agenda              | [Dem0nx309](https://github.com/dem0nx309) & [Ianice](https://github.com/ianice-lng)|
 | User                | [Dem0nx309](https://github.com/dem0nx309) & [Ianice](https://github.com/ianice-lng)|
 | Embed dynamique     | [Ianice](https://github.com/ianice-lng)|
+| Anime Notif         |[Ianice](https://github.com/ianice-lng)|

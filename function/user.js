@@ -32,7 +32,12 @@ async function fetchUser(pseudo, EmbedBuilder, AttachmentBuilder) {
         const responseStats = await fetch(urlEndpoint + '/progression/anime/stats/status/' + result.uid);
         const stats = await responseStats.json();
     
-        const imageCanvas = await createStatsCanvas(stats);
+        const imageCanvas = await createStatsCanvas(stats, {
+          episodes: episodes,
+          addition: addition,
+          revisionageAnime: revisionageAnime,
+          revisionageEpisode: revisionageEpisode
+        });
         const attachment = new AttachmentBuilder(imageCanvas, { name: 'stats.png' });
         const userEmbed = new EmbedBuilder()
           .setColor(0x0099ff)
@@ -45,13 +50,6 @@ async function fetchUser(pseudo, EmbedBuilder, AttachmentBuilder) {
             url: "https://hyakanime.fr",
           })
           .setThumbnail(result.photoURL)
-          .addFields(
-            { name: "TITRE AJOUTÉS", value: "" + episodes, inline: true },
-            { name: "ÉPISODES VUS", value: "" + addition, inline: true },
-            { name: "\u200b", value: "\u200b", inline: false},
-            { name: "TITRE REWATCH", value: "" + revisionageAnime, inline: true },
-            { name: "ÉPISODES REWATCH", value: "" + revisionageEpisode, inline: true }
-          )
           .setImage("attachment://stats.png")
           .setTimestamp()
           .setFooter({
@@ -61,49 +59,71 @@ async function fetchUser(pseudo, EmbedBuilder, AttachmentBuilder) {
           return { userEmbed, attachment };
 }
 
-async function createStatsCanvas(statsHyak) {
-    const canvas = createCanvas(450, 120);
-    const ctx = canvas.getContext('2d');
+async function createStatsCanvas(statsHyak, userStats) {
+  const canvas = createCanvas(490, 200);
+  const ctx = canvas.getContext('2d');
+
+  const stats = {
+    aVoir: statsHyak["2"] || 0,
+    enPause: statsHyak["4"] || 0,
+    enCours: statsHyak["1"] || 0,
+    termine: statsHyak["3"] || 0,
+    abandonne: statsHyak["5"] || 0,
+    total: statsHyak["total"] || 0,
+  };
+
+  const { episodes, addition, revisionageAnime, revisionageEpisode } = userStats;
+
+  const colors = {
+    aVoir: '#9f9f9f',
+    enPause: '#A16EFF',
+    enCours: '#0099FF',
+    termine: '#00CC33',
+    abandonne: '#FF3333',
+    text: '#FFFFFF',
+  };
+
+  ctx.font = 'bold 16px Arial';
+
+  const userLabels = [
+    { label: 'Titres ajoutés', value: episodes },
+    { label: 'Titres rewatch', value: revisionageAnime },
+    { label: 'Épisodes vus', value: addition },
+    { label: 'Épisodes rewatch', value: revisionageEpisode },
+  ];
+
+  ctx.fillStyle = '#FFFFFF';
+  ctx.font = 'bold 16px Arial';
+  userLabels.forEach((data, i) => {
+    const x = i < 2 ? 25 : 260;
+    const y = 60 + (i % 2) * 20;
+    ctx.fillText(`${data.label}: ${data.value}`, x, y);
+  });
+
+  const statsLabels = [
+    { label: 'Total', value: stats.total, color: colors.text },
+    { label: 'À voir', value: stats.aVoir, color: colors.aVoir },
+    { label: 'En Pause', value: stats.enPause, color: colors.enPause },
+    { label: 'En cours', value: stats.enCours, color: colors.enCours },
+    { label: 'Terminé', value: stats.termine, color: colors.termine },
+    { label: 'Abandonné', value: stats.abandonne, color: colors.abandonne },
+  ];
+
+  statsLabels.forEach(({ label, value, color }, index) => {
+    const x = index < 3 ? 25 : 260;
+    const y = 120 + (index % 3) * 20;
+    ctx.fillStyle = color;
+    ctx.fillText(`${label}: ${value}`, x, y);
+  });
+
   
-    const stats = {
-      aVoir: statsHyak["2"] || 0,
-      enPause: statsHyak["4"] || 0,
-      enCours: statsHyak["1"] || 0,
-      termine: statsHyak["3"] || 0,
-      abandonne: statsHyak["5"] || 0,
-      total: statsHyak["total"] || 0
-    };
-  
-    const colors = {
-      aVoir: '#9f9f9f',
-      enPause: '#A16EFF',
-      enCours: '#0099FF',
-      termine: '#00CC33',
-      abandonne: '#FF3333'
-    };
-  
-    // Affichage des statistiques
-    ctx.font = 'bold 14px Arial';
-    const positions = [
-      { label: 'Total', value: stats.total, x: 25, y: 30, color: '#FFFFFF' },
-      { label: 'À voir', value: stats.aVoir, x: 25, y: 50, color: colors.aVoir },
-      { label: 'En Pause', value: stats.enPause, x: 25, y: 70, color: colors.enPause },
-      { label: 'En cours', value: stats.enCours, x: 260, y: 30, color: colors.enCours },
-      { label: 'Terminé', value: stats.termine, x: 260, y: 50, color: colors.termine },
-      { label: 'Abandonné', value: stats.abandonne, x: 260, y: 70, color: colors.abandonne }
-    ];
-  
-    positions.forEach(({ label, value, x, y, color }) => {
-      ctx.fillStyle = color;
-      ctx.fillText(label, x, y);
-      ctx.fillText(value, x + 100, y);
-    });
-  
-    // Dessin de la barre de progression
-    drawProgressBar(ctx, 20, 90, 375, 15, stats, colors);
-  
-    return canvas.toBuffer();
-  }
+
+  // Barre de progression
+  drawProgressBar(ctx, 20, 180, 430, 15, stats, colors);
+
+  return canvas.toBuffer();
+}
+
   
   function drawProgressBar(ctx, x, y, width, height, stats, colors) {
     let currentX = x;
