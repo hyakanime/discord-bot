@@ -14,9 +14,16 @@ module.exports = {
                     { name: "Jour", value: "day" },
                     { name: "Semaine", value: "timeline" }
                 )
+        )
+        .addBooleanOption(option => option
+            .setName("visible")
+            .setDescription("Afficher l'agenda pour tout le monde ?")
+            .setRequired(false)
         ),
     async execute(interaction) {
-        await interaction.deferReply({ flags: 64 });
+        const visible = interaction.options.getBoolean("visiblee") || false;
+        const flags = visible ? 0 : 64;
+        await interaction.deferReply({ flags });
         const type = interaction.options.getString("type") || "day";
         const result = await fetch(`${urlEndpoint}/agenda/${type}`);
         const data = await result.text();
