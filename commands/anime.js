@@ -13,6 +13,11 @@ module.exports = {
                 .setDescription('Rechercher un anime ou un utilisateur')
                 .setAutocomplete(true)
                 .setRequired(true),
+        )
+        .addBooleanOption(option => option
+            .setName("visible")
+            .setDescription("Afficher la recherche pour tout le monde ?")
+            .setRequired(false)
         ),
     async autocomplete(interaction) {
         const searchText = interaction.options.getFocused();
@@ -28,18 +33,17 @@ module.exports = {
                     if (response.ok) {
                         let data = await response.json();
                         choices = data.map(anime => ({
-                            title: anime.title ? anime.title : anime.titleEN ? anime.titleEN : anime.romanji ? anime.romanji : anime.titleJP,
+                            title: anime.title ? anime.title : anime.titleEN ? anime.titleEN : anime.romanji ? anime.romanji : anime.titleJP ? anime.titleJP : "Titre inconnu",
                             id: `${anime.id}`,
                         }));
 
-                        console.log(data.length, choices.length)
 
                         if (choices.length === 0) {
                             choices = [{ title: "Aucun résultat trouvé", id: "null" }]
                         }
 
                         await interaction.respond(
-                            choices.slice(0, 10).map(choice => ({ name: choice.title, value: `${choice.id}` })),
+                            choices.slice(0, 10).map(choice => ({ name: choice.title, value: `${choice.title}` })),
                         );
                     }
                     else
@@ -51,8 +55,24 @@ module.exports = {
             }, 400);
     },
     async execute(interaction) {
-        const animeId = interaction.options.getString('titre');
-        const animeEmbed = await fetchAnime(animeId);
-        await interaction.reply({ embeds: [animeEmbed] });
+        let animeTitre = interaction.options.getString('titre');
+        const visible = interaction.options.getBoolean("visible") || false;
+        await interaction.reply({ content: "Recherche en cours...", ephemeral: !visible });
+        const response = await fetch(`${urlEndpoint}/explore?search=${animeTitre}&page=1`)
+        if (response.ok) {
+            let data = await response.json();
+            if (data.length === 0) {
+                await interaction.editReply({ content: "Aucun résultat trouvé." });
+                return;
+            }
+            const animeEmbed = await fetchAnime(data[0].id);
+            await interaction.editReply({ content: "", embeds: [animeEmbed] });
+            return;
+        }else{
+            await interaction.editReply({ content: "Aucun résultat trouvé." });
+            return;
+        }
+
+        
     },
 };

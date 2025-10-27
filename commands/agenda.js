@@ -21,7 +21,7 @@ module.exports = {
             .setRequired(false)
         ),
     async execute(interaction) {
-        const visible = interaction.options.getBoolean("visiblee") || false;
+        const visible = interaction.options.getBoolean("visible") || false;
         const flags = visible ? 0 : 64;
         await interaction.deferReply({ flags });
         const type = interaction.options.getString("type") || "day";
