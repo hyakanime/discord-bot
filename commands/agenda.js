@@ -14,9 +14,16 @@ module.exports = {
                     { name: "Jour", value: "day" },
                     { name: "Semaine", value: "timeline" }
                 )
+        )
+        .addBooleanOption(option => option
+            .setName("visible")
+            .setDescription("Afficher l'agenda pour tout le monde ?")
+            .setRequired(false)
         ),
     async execute(interaction) {
-        await interaction.deferReply({ flags: 64 });
+        const visible = interaction.options.getBoolean("visible") || false;
+        const flags = visible ? 0 : 64;
+        await interaction.deferReply({ flags });
         const type = interaction.options.getString("type") || "day";
         const result = await fetch(`${urlEndpoint}/agenda/${type}`);
         const data = await result.text();
@@ -73,6 +80,7 @@ module.exports = {
                         date: `${date.toLocaleDateString("fr-FR", { weekday: "long" }).charAt(0).toUpperCase() + date.toLocaleDateString("fr-FR", { weekday: "long" }).slice(1)} ${date.getDate()} ${date.toLocaleDateString("fr-FR", { month: "long" })}`,
                     }
                     if(anime.media.diffuseur) {
+
                         //une simple vérification pour voir si le fichier diffuseurEmoji.json est rempli ou pas (si vous modifiez un texte dans le fichier ça ira dans le if)
                         if(diffuseurEmoji["Crunchyroll"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Disney"] !== "REMPLIR AVEC UN EMOJI" ||diffuseurEmoji["Netflix"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["ADN"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Prime"] !== "REMPLIR AVEC UN EMOJI") {
                             info.diffuseur = await getDiffuseurEmoji(anime.media.diffuseur);
@@ -117,6 +125,7 @@ module.exports = {
 async function getDiffuseurEmoji(listDiffuseur) {
         let emoji = "";
         Object.keys(listDiffuseur).map((key) => {
+            if (diffuseurEmoji[key] === undefined) return;
             emoji += `${diffuseurEmoji[key]}`;
         });
         return emoji;
