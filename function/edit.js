@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { tokenHyakanime } = require("../config.json");
+const { tokenHyakanime , urlEndpoint } = require("../config.json");
 const GuildSettings = require('../models/GuildSettings');
 const Status = require ('../models/Status');
 
@@ -39,7 +39,7 @@ async function embedEdit(client) {
         // Lire le dernier statut depuis la base de données
         await readStatusFromDB();
 
-        const response = await fetch("https://api-v3.hyakanime.fr/auth/refresh", {
+        const response = await fetch(`${urlEndpoint}/auth/refresh`, {
             headers: { authorization: `Token ${tokenHyakanime}` },
             method: "POST"
         });
