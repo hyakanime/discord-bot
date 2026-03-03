@@ -10,7 +10,8 @@ const subcommands = {
     editalert: require('./settings/editalert'),
     reset: require('./settings/reset'),
     "anime-notif": require('./settings/animeNotif'),
-    feur: require('./settings/feur')
+    feur: require('./settings/feur'),
+    feedback: require('./settings/feedback')
 };
 
 module.exports = {
@@ -43,6 +44,18 @@ module.exports = {
                 .addChannelOption(option =>
                     option.setName('channel')
                         .setDescription('Le canal pour les messages de notification d\'anime')
+                        .addChannelTypes(ChannelType.GuildText)
+                        .setRequired(false)))
+        .addSubcommand(subcommand =>
+            subcommand.setName('feedback')
+                .setDescription('Configurer les paramètres de retours (bugs/suggestions) Hyakanime')
+                .addBooleanOption(option =>
+                    option.setName('enable')
+                        .setDescription('Activer ou désactiver les notifications de retours')
+                        .setRequired(true))
+                .addChannelOption(option =>
+                    option.setName('channel')
+                        .setDescription('Le canal pour les notifications de retours')
                         .addChannelTypes(ChannelType.GuildText)
                         .setRequired(false)))
         .addSubcommand(subcommand =>

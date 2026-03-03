@@ -4,6 +4,7 @@ const { Partials, Client, Collection, GatewayIntentBits } = require('discord.js'
 const { token, mongoURI } = require('./config.json');
 const cron = require("node-cron");
 const { embedEdit } = require("./function/edit.js");
+const { checkFeedbacks } = require('./function/feedback.js');
 const mongoose = require('mongoose');
 
 const client = new Client({
@@ -60,10 +61,14 @@ mongoose.connection.on('error', err => {
 
 
 client.login(token);
-
 client.on('ready', () => {
   // appel de la fonction toutes les heures
   cron.schedule('0 * * * *', () => {
     embedEdit(client);
+  });
+
+  // vérification des retours Hyakanime toutes les 6 heures
+  cron.schedule('0 */6 * * *', () => {
+    checkFeedbacks(client);
   });
 });

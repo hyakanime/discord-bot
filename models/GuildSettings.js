@@ -13,6 +13,8 @@ const guildSettingsSchema = new mongoose.Schema({
   feurEnabled: { type: Boolean, default: false },
   animeNotifEnabled: { type: Boolean, default: false },
   animeNotifChannelId: { type: String, default: undefined },
+  feedbackEnabled: { type: Boolean, default: false },
+  feedbackChannelId: { type: String, default: undefined },
 });
 
 guildSettingsSchema.pre('save', function(next) {
