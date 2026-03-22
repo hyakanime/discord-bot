@@ -4,14 +4,12 @@ const GuildSettings = require('../models/GuildSettings');
 const Status = require ('../models/Status');
 
 let lastStatus = null;
-let consecutiveRejections = 0;
 
 async function readStatusFromDB() {
     try {
         const status = await Status.findOne();
         if (status) {
             lastStatus = status.lastStatus;
-            consecutiveRejections = status.consecutiveRejections;
         }
         return status;
     } catch (error) {
@@ -20,11 +18,11 @@ async function readStatusFromDB() {
     }
 }
 
-async function writeStatusToDB(status, consecutiveRejections) {
+async function writeStatusToDB(status) {
     try {
         await Status.updateOne(
             {},
-            { lastStatus: status, consecutiveRejections: consecutiveRejections },
+            { lastStatus: status },
             { upsert: true }
         );
     } catch (error) {
@@ -49,7 +47,7 @@ async function embedEdit(client) {
         const data = await response.json();
         const isAccepted = data.isSubmissionAccepted || false;
 
-        if (lastStatus !== isAccepted || (!isAccepted && !(consecutiveRejections % 24))) {
+        if (lastStatus !== isAccepted) {
             // Créer l'embed
             const alertEmbed = new EmbedBuilder()
                 .setColor(isAccepted ? 0x00FF00 : 0xFF0000)
@@ -80,13 +78,10 @@ async function embedEdit(client) {
             }
 
             // Mise à jour du statut
-            if (!isAccepted && !(consecutiveRejections % 24)) {
-                consecutiveRejections = 0;
-            }
             lastStatus = isAccepted;
 
             // Écrire le nouveau statut dans la base de données
-            await writeStatusToDB(lastStatus, consecutiveRejections);
+            await writeStatusToDB(lastStatus);
         }
     } catch (error) {
         console.error('Erreur:', error.message);
