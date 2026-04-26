@@ -22,12 +22,17 @@ async function fetchUser(pseudo, EmbedBuilder, AttachmentBuilder) {
         let addition = 0;
         let revisionageEpisode = 0;
         let revisionageAnime = 0;
+        let tempsVisionnage = 0;
+        let tempsRevisionage = 0;
         for (let i = 0; i < episodes; i++) {
+          const progression = resultatProgression[i].progression.progression;
           const epAverage = resultatProgression[i].media?.EpAverage || 24;
-          addition += resultatProgression[i].progression.progression * epAverage;
+          addition += progression;
+          tempsVisionnage += progression * epAverage;
           if (resultatProgression[i].progression.rewatch != undefined) {
-            revisionageEpisode = revisionageEpisode + resultatProgression[i].progression.rewatch * resultatProgression[i].progression.progression * epAverage;
+            revisionageEpisode = revisionageEpisode + resultatProgression[i].progression.rewatch * progression;
             revisionageAnime = revisionageAnime + resultatProgression[i].progression.rewatch;
+            tempsRevisionage = tempsRevisionage + resultatProgression[i].progression.rewatch * progression * epAverage;
           }
         }
         const responseStats = await fetch(urlEndpoint + '/progression/anime/stats/status/' + result.uid);
@@ -37,7 +42,9 @@ async function fetchUser(pseudo, EmbedBuilder, AttachmentBuilder) {
           episodes: episodes,
           addition: addition,
           revisionageAnime: revisionageAnime,
-          revisionageEpisode: revisionageEpisode
+          revisionageEpisode: revisionageEpisode,
+          tempsVisionnage: tempsVisionnage,
+          tempsRevisionage: tempsRevisionage
         });
         const attachment = new AttachmentBuilder(imageCanvas, { name: 'stats.png' });
         const userEmbed = new EmbedBuilder()
@@ -61,7 +68,7 @@ async function fetchUser(pseudo, EmbedBuilder, AttachmentBuilder) {
 }
 
 async function createStatsCanvas(statsHyak, userStats) {
-  const canvas = createCanvas(490, 200);
+  const canvas = createCanvas(490, 230);
   const ctx = canvas.getContext('2d');
 
   const stats = {
@@ -73,7 +80,7 @@ async function createStatsCanvas(statsHyak, userStats) {
     total: statsHyak["total"] || 0,
   };
 
-  const { episodes, addition, revisionageAnime, revisionageEpisode } = userStats;
+  const { episodes, addition, revisionageAnime, revisionageEpisode, tempsVisionnage, tempsRevisionage } = userStats;
 
   const colors = {
     aVoir: '#9f9f9f',
@@ -91,13 +98,15 @@ async function createStatsCanvas(statsHyak, userStats) {
     { label: 'Titres rewatch', value: revisionageAnime },
     { label: 'Épisodes vus', value: addition },
     { label: 'Épisodes rewatch', value: revisionageEpisode },
+    { label: 'Temps visionnage', value: formatWatchTime(tempsVisionnage) },
+    { label: 'Temps rewatch', value: formatWatchTime(tempsRevisionage) },
   ];
 
   ctx.fillStyle = '#FFFFFF';
   ctx.font = 'bold 16px Arial';
   userLabels.forEach((data, i) => {
-    const x = i < 2 ? 25 : 260;
-    const y = 60 + (i % 2) * 20;
+    const x = i < 3 ? 25 : 260;
+    const y = 40 + (i % 3) * 20;
     ctx.fillText(`${data.label}: ${data.value}`, x, y);
   });
 
@@ -112,7 +121,7 @@ async function createStatsCanvas(statsHyak, userStats) {
 
   statsLabels.forEach(({ label, value, color }, index) => {
     const x = index < 3 ? 25 : 260;
-    const y = 120 + (index % 3) * 20;
+    const y = 130 + (index % 3) * 20;
     ctx.fillStyle = color;
     ctx.fillText(`${label}: ${value}`, x, y);
   });
@@ -120,9 +129,20 @@ async function createStatsCanvas(statsHyak, userStats) {
   
 
   // Barre de progression
-  drawProgressBar(ctx, 20, 180, 430, 15, stats, colors);
+  drawProgressBar(ctx, 20, 210, 430, 15, stats, colors);
 
   return canvas.toBuffer();
+}
+
+function formatWatchTime(minutes) {
+  const totalMinutes = Math.round(minutes || 0);
+  const days = Math.floor(totalMinutes / 1440);
+  const hours = Math.floor((totalMinutes % 1440) / 60);
+  const remainingMinutes = totalMinutes % 60;
+
+  if (days > 0) return hours > 0 ? `${days}j ${hours}h` : `${days}j`;
+  if (hours > 0) return remainingMinutes > 0 ? `${hours}h ${remainingMinutes}min` : `${hours}h`;
+  return `${remainingMinutes}min`;
 }
 
   
