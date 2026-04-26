@@ -23,9 +23,10 @@ async function fetchUser(pseudo, EmbedBuilder, AttachmentBuilder) {
         let revisionageEpisode = 0;
         let revisionageAnime = 0;
         for (let i = 0; i < episodes; i++) {
-          addition += resultatProgression[i].progression.progression;
+          const epAverage = resultatProgression[i].media?.EpAverage || 24;
+          addition += resultatProgression[i].progression.progression * epAverage;
           if (resultatProgression[i].progression.rewatch != undefined) {
-            revisionageEpisode = revisionageEpisode + resultatProgression[i].progression.rewatch * resultatProgression[i].progression.progression;
+            revisionageEpisode = revisionageEpisode + resultatProgression[i].progression.rewatch * resultatProgression[i].progression.progression * epAverage;
             revisionageAnime = revisionageAnime + resultatProgression[i].progression.rewatch;
           }
         }
