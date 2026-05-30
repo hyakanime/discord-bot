@@ -4,6 +4,7 @@
 	"mongoURI": "Lien de votre base de données",
 	"tokenHyakanime": "Remplir avec le token de l'api hyakanime",
 	"logoUrl": "https://cdn-hyakanime.s3.eu-west-3.amazonaws.com/logo-hyakanime.png", 
-	"urlEndpoint": "https://api-v5.hyakanime.fr"
+	"urlEndpoint": "https://api-v5.hyakanime.fr",
+	"oauth2" : "https://discord.com/oauth2/authorize?client_id=846683183315288104&response_type=token&redirect_uri=https%3A%2F%2Fhyakanime.fr&scope=openid+sdk.social_layer_presence"
 }
 
