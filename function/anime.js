@@ -23,7 +23,6 @@ async function fetchAnime(animeId, response = null) {
                         .setTimestamp()
                         .setDescription(response.synopsis === undefined ? "Pas de synopsis renseigné." : response.synopsis)
                         const embedFields = [];
-
                         Object.keys(response).forEach((key) => {
                             switch (key) {
                                 case "image":
@@ -51,6 +50,7 @@ async function fetchAnime(animeId, response = null) {
                                     });
                                     break;
                                 case "studios":
+                                    if (response[key] === null) return ;
                                     embedFields.push({ 
                                         name: "Studios", 
                                         value: response[key] || "Pas de studio renseigné", 
@@ -58,26 +58,24 @@ async function fetchAnime(animeId, response = null) {
                                     });
                                     break;
                                 case "source":
+                                    if (response[key] === null) return ;
                                     embedFields.push({ 
                                         name: "Sources", 
                                         value: response[key] || "Pas de source renseigné", 
                                         inline: true 
                                     });
                                     break;
-                                case "diffuseur":
-                                    if (response[key]) {
-                                        let diffuseurs = [];
-                                        Object.keys(response[key]).forEach((name) => {
-                                            diffuseurs.push(`[${name}](${response[key][name]})`);
-                                        });
+                                case "streaming":
+                                        if(response[key].length === 0 || response[key] === null) return ;
+                                        const diffuseurs = response[key].map(stream => `[${stream.source}](${stream.url})`);
                                         embedFields.push({ 
                                             name: `Diffuseur${diffuseurs.length > 1 ? "s" : ""}`, 
                                             value: diffuseurs.join(", "), 
                                             inline: true 
                                         });
-                                    }
                                     break;
                                 case "status":
+                                    if (response[key] === null) return ;
                                     let statusMap = {
                                         1: "En cours",
                                         2: "À venir",
@@ -91,6 +89,7 @@ async function fetchAnime(animeId, response = null) {
                                     });
                                     break;
                                 case "start":
+                                    if (response[key] === null) return ;
                                     embedFields.push({ 
                                         name: "Date de sortie", 
                                         value: `${response[key].day ? response[key].day + "/" : ""}${response[key].month ? response[key].month + "/" : ""}${response[key].year || ""}`, 
@@ -98,19 +97,35 @@ async function fetchAnime(animeId, response = null) {
                                     });
                                     break;
                                 case "end":
-                                    if (response[key].year !== null) {
+                                    if (response[key] === null) return ;
+                                    if (response[key]?.year === null) return 
                                         embedFields.push({ 
                                             name: "Date de fin", 
                                             value: `${response[key].day ? response[key].day + "/" : ""}${response[key].month ? response[key].month + "/" : ""}${response[key].year || ""}`, 
                                             inline: true 
                                         });
-                                    }
+                                    
+                                case "score_distribution":
+                                    if(!response[key]) return ;
+                                    if(response[key].length === 0) return ;
+                                    let totalScores = 0;
+                                    Object.keys(response[key]).map((score) => {
+                                        if (![1, 2, 3, 4, 5, 6, 7, 8, 9, 10].includes(parseInt(score))) return 0;
+                                        totalScores += parseInt(score) * response[key][score];
+                                        return ;
+                                    });
+                                    const scoresAverage = totalScores / response[key].total;
+                                    embedFields.push({ 
+                                        name: "Moyenne des scores", 
+                                        value: `${scoresAverage.toFixed(2)}/10`, 
+                                        inline: true 
+                                    }); 
                                     break;
                             }
                         });
                         //Afficher les champs dans un ordre précis
                         embedFields.sort((a, b) => {
-                            const order = [ "Status", "Genres", "Nombre d'épisodes", "Studios", "Sources", "Diffuseurs", "Diffuseur", "VF", "Date de sortie", "Date de fin"];
+                            const order = [ "Status", "Genres", "Nombre d'épisodes", "Studios", "Sources", "Diffuseurs", "Diffuseur", "VF", "Date de sortie", "Date de fin", "Moyenne des scores"];
                             return order.indexOf(a.name) - order.indexOf(b.name);
                         });
 
