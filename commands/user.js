@@ -1,33 +1,42 @@
-const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder } = require("discord.js");
+const { SlashCommandBuilder, EmbedBuilder, AttachmentBuilder, StringSelectMenuBuilder, ActionRowBuilder, ComponentType } = require("discord.js");
 const { urlEndpoint } = require("../config.json");
-const { fetchUser } = require("../function/user.js");
+const { fetchUserData, buildUserPage, PAGES } = require("../function/user.js");
 const UserEmbedCache = require('../models/UserEmbedCache');
 let timeoutId;
 
-
 async function getFromCache(pseudo) {
   try {
-    const now = new Date(), cachedResult = await UserEmbedCache.findOne({ pseudo, expiresAt: { $gt: now } });
-    if (cachedResult) return { userEmbed: new EmbedBuilder(cachedResult.userEmbed), attachment: new AttachmentBuilder(cachedResult.attachment, { name: cachedResult.attachmentName }) };
-    return null;
+    const cachedResult = await UserEmbedCache.findOne({ pseudo, expiresAt: { $gt: new Date() } });
+    return cachedResult?.userData ? cachedResult.userData : null;
   } catch (error) {
     console.error('Erreur lors de la récupération du cache:', error);
     return null;
   }
 }
 
-async function addToCache(pseudo, userEmbed, attachment) {
+async function addToCache(pseudo, userData) {
   try {
     const expiresAt = new Date(); expiresAt.setDate(expiresAt.getDate() + 1);
-    const embedData = userEmbed.toJSON();
-    const attachmentBuffer = attachment.attachment instanceof Buffer ? attachment.attachment : Buffer.from(attachment.attachment);
-    await UserEmbedCache.updateOne({ pseudo }, {
-      pseudo, userEmbed: embedData, attachment: attachmentBuffer,
-      attachmentName: attachment.name || 'image.png', expiresAt
-    }, { upsert: true });
+    await UserEmbedCache.updateOne({ pseudo }, { pseudo, userData, expiresAt }, { upsert: true });
   } catch (error) {
     console.error('Erreur lors de l\'ajout au cache:', error);
   }
+}
+
+// Construit la rangée contenant le menu déroulant des pages de statistiques.
+function buildSelectRow(activePageId, disabled = false) {
+  const menu = new StringSelectMenuBuilder()
+    .setCustomId('user_stats_select')
+    .setPlaceholder('Choisis une catégorie de statistiques')
+    .setDisabled(disabled)
+    .addOptions(PAGES.map(page => ({
+      label: page.label,
+      description: page.description,
+      value: page.id,
+      emoji: page.emoji,
+      default: page.id === activePageId,
+    })));
+  return new ActionRowBuilder().addComponents(menu);
 }
 
 module.exports = {
@@ -54,14 +63,31 @@ module.exports = {
     if (!pseudo || pseudo === "") return await interaction.editReply("Erreur lors de la récupération du compte");
 
     try {
-      const cachedData = await getFromCache(pseudo);
-      if (cachedData) return await interaction.editReply({ embeds: [cachedData.userEmbed], files: [cachedData.attachment] });
+      let userData = await getFromCache(pseudo);
+      if (!userData) {
+        userData = await fetchUserData(pseudo);
+        if (!userData) return await interaction.editReply("Erreur lors de la récupération du compte");
+        await addToCache(pseudo, userData);
+      }
 
-      const { userEmbed, attachment } = await fetchUser(pseudo, EmbedBuilder, AttachmentBuilder);
-      if (!userEmbed) return await interaction.editReply("Erreur lors de la récupération du compte");
+      let activePage = 'overview';
+      const { embed, attachment } = await buildUserPage(activePage, userData, { EmbedBuilder, AttachmentBuilder });
+      const message = await interaction.editReply({ embeds: [embed], files: [attachment], components: [buildSelectRow(activePage)] });
 
-      await addToCache(pseudo, userEmbed, attachment);
-      await interaction.editReply({ embeds: [userEmbed], files: [attachment] });
+      const collector = message.createMessageComponentCollector({ componentType: ComponentType.StringSelect, time: 5 * 60 * 1000 });
+
+      collector.on('collect', async (i) => {
+        if (i.user.id !== interaction.user.id) {
+          return await i.reply({ content: "Ce menu n'est pas le tien. Lance ta propre commande /user.", flags: 64 });
+        }
+        activePage = i.values[0];
+        const page = await buildUserPage(activePage, userData, { EmbedBuilder, AttachmentBuilder });
+        await i.update({ embeds: [page.embed], files: [page.attachment], components: [buildSelectRow(activePage)] });
+      });
+
+      collector.on('end', async () => {
+        try { await interaction.editReply({ components: [buildSelectRow(activePage, true)] }); } catch (e) { /* message supprimé ou expiré */ }
+      });
     } catch (error) {
       console.error('Erreur lors de la recherche:', error);
       await interaction.editReply("Une erreur est survenue lors de la recherche.");
