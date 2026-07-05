@@ -62,7 +62,7 @@ function buildUserDigestEmbeds(entries) {
     .setTitle(DIGEST_TITLE)
     .setColor(0x0099ff)
     .setDescription(chunkLines.join('\n'))
-    .setFooter({ text: 'Source : Hyakanime' })
+    .setFooter({ text: 'Hyakanime' })
     .setTimestamp());
 }
 
