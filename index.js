@@ -73,8 +73,9 @@ client.on('ready', () => {
     checkFeedbacks(client);
   });
 
-  // notification DM des demandes edit/request traitées, une fois par jour à 8h
-  cron.schedule('0 8 * * *', () => {
+  // notification DM des demandes edit/request traitées, une fois par jour à 14h
+  cron.schedule('0 14 * * *', () => {
     checkContributions(client);
   });
 });
+

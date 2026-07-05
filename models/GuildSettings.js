@@ -15,6 +15,9 @@ const guildSettingsSchema = new mongoose.Schema({
   animeNotifChannelId: { type: String, default: undefined },
   feedbackEnabled: { type: Boolean, default: false },
   feedbackChannelId: { type: String, default: undefined },
+  saucyTwitterEnabled: { type: Boolean, default: false },
+  saucyBlueskyEnabled: { type: Boolean, default: false },
+  saucyInstagramEnabled: { type: Boolean, default: false },
 });
 
 guildSettingsSchema.pre('save', function(next) {
