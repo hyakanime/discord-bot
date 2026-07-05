@@ -3,16 +3,27 @@ const { urlEndpoint } = require("../config.json");
 const UserLink = require('../models/UserLink.js');
 let timeoutId;
 
+// La recherche renvoie tous les pseudos contenant la chaîne : pour "Julien" elle
+// renvoie "JulienToutain" en premier. On privilégie donc la correspondance exacte
+// (insensible à la casse) et on ne retombe sur le premier résultat qu'à défaut.
+function pickBestMatch(results, pseudo) {
+  if (!Array.isArray(results) || results.length === 0) return null;
+  const wanted = String(pseudo).toLowerCase();
+  const exact = results.find(u => u && typeof u.username === 'string' && u.username.toLowerCase() === wanted);
+  return exact || results[0];
+}
+
 async function checkHyakanimeUserExists(pseudo) {
   try {
     const response = await fetch(`${urlEndpoint}/search/user/${encodeURIComponent(pseudo)}`);
     if (!response.ok) return { exists: false };
     const result = JSON.parse(await response.text());
-    if (result.length > 0) {
+    const match = pickBestMatch(result, pseudo);
+    if (match) {
       return {
         exists: true,
-        uid: result[0].uid,
-        username: result[0].username
+        uid: match.uid,
+        username: match.username
       };
     }
     return { exists: false };
@@ -86,5 +97,8 @@ module.exports = {
       console.error('Erreur lors de la liaison des comptes:', error);
       await interaction.editReply('Une erreur est survenue lors de la liaison de ton compte. Veuillez réessayer plus tard.');
     }
-  }
+  },
+
+  // exporté pour les tests unitaires
+  pickBestMatch
 };
