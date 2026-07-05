@@ -19,9 +19,14 @@ test('pickBestMatch: correspondance exacte insensible à la casse', () => {
   assert.strictEqual(m.uid, 'uid-julien');
 });
 
-test('pickBestMatch: sans correspondance exacte => premier résultat', () => {
-  const m = pickBestMatch(results, 'Jul');
-  assert.strictEqual(m.uid, 'uid-toutain');
+test('pickBestMatch: sans correspondance exacte => null (pas de fallback)', () => {
+  // "Jul" est contenu dans les 3 pseudos mais n'en égale aucun => null
+  assert.strictEqual(pickBestMatch(results, 'Jul'), null);
+});
+
+test('pickBestMatch: pseudo inexistant => null', () => {
+  const partiels = [{ username: 'testaccount', uid: 'uid-1' }, { username: 'testarossa', uid: 'uid-2' }];
+  assert.strictEqual(pickBestMatch(partiels, 'testa'), null);
 });
 
 test('pickBestMatch: liste vide ou invalide => null', () => {

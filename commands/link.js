@@ -3,14 +3,15 @@ const { urlEndpoint } = require("../config.json");
 const UserLink = require('../models/UserLink.js');
 let timeoutId;
 
-// La recherche renvoie tous les pseudos contenant la chaîne : pour "Julien" elle
-// renvoie "JulienToutain" en premier. On privilégie donc la correspondance exacte
-// (insensible à la casse) et on ne retombe sur le premier résultat qu'à défaut.
+// La recherche renvoie tous les pseudos *contenant* la chaîne : pour "Julien" elle
+// renvoie aussi "JulienToutain", "JulienBarbier"… On ne retient donc QUE la
+// correspondance exacte (insensible à la casse). Sans correspondance exacte on
+// renvoie null : lier un pseudo approximatif au premier résultat venu produit de
+// mauvaises liaisons et un message de succès trompeur.
 function pickBestMatch(results, pseudo) {
-  if (!Array.isArray(results) || results.length === 0) return null;
+  if (!Array.isArray(results)) return null;
   const wanted = String(pseudo).toLowerCase();
-  const exact = results.find(u => u && typeof u.username === 'string' && u.username.toLowerCase() === wanted);
-  return exact || results[0];
+  return results.find(u => u && typeof u.username === 'string' && u.username.toLowerCase() === wanted) || null;
 }
 
 async function checkHyakanimeUserExists(pseudo) {
@@ -77,21 +78,23 @@ module.exports = {
 
       const existingLink = await UserLink.findOne({ discordId });
 
+      // On stocke et on affiche le pseudo canonique résolu (userCheck.username),
+      // pas la chaîne tapée par l'utilisateur, pour éviter tout affichage trompeur.
       if (existingLink) {
-        existingLink.hyakanimePseudo = hyakanimePseudo;
+        existingLink.hyakanimePseudo = userCheck.username;
         existingLink.hyakanimeUid = userCheck.uid;
         existingLink.discordUsername = discordUsername;
         await existingLink.save();
-        await interaction.editReply(`Ton compte Discord a été mis à jour avec le nouveau pseudo Hyakanime: ${hyakanimePseudo}`);
+        await interaction.editReply(`Ton compte Discord a été mis à jour avec le nouveau pseudo Hyakanime: ${userCheck.username}`);
       } else {
         const newLink = new UserLink({
           discordId,
           discordUsername,
-          hyakanimePseudo,
+          hyakanimePseudo: userCheck.username,
           hyakanimeUid: userCheck.uid
         });
         await newLink.save();
-        await interaction.editReply(`Ton compte Discord a été lié avec succès à ton compte Hyakanime (${hyakanimePseudo})!`);
+        await interaction.editReply(`Ton compte Discord a été lié avec succès à ton compte Hyakanime (${userCheck.username})!`);
       }
     } catch (error) {
       console.error('Erreur lors de la liaison des comptes:', error);
