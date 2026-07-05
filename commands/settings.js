@@ -11,7 +11,8 @@ const subcommands = {
     reset: require('./settings/reset'),
     "anime-notif": require('./settings/animeNotif'),
     feur: require('./settings/feur'),
-    feedback: require('./settings/feedback')
+    feedback: require('./settings/feedback'),
+    saucy: require('./settings/saucy')
 };
 
 module.exports = {
@@ -84,6 +85,21 @@ module.exports = {
                     option.setName('enable')
                         .setDescription('Activer ou désactiver le feur a chaque quoi sur le serveur')
                         .setRequired(true)))
+        .addSubcommand(subcommand =>
+            subcommand.setName('saucy')
+                .setDescription('Activer/désactiver les embeds enrichis par site (SaucyBot)')
+                .addBooleanOption(option =>
+                    option.setName('twitter')
+                        .setDescription('Embeds Twitter/X')
+                        .setRequired(false))
+                .addBooleanOption(option =>
+                    option.setName('bluesky')
+                        .setDescription('Embeds Bluesky')
+                        .setRequired(false))
+                .addBooleanOption(option =>
+                    option.setName('instagram')
+                        .setDescription('Réécriture des liens Instagram')
+                        .setRequired(false)))
         .addSubcommand(subcommand =>
             subcommand.setName('reset')
                 .setDescription('Réinitialiser tous les paramètres à leurs valeurs par défaut')

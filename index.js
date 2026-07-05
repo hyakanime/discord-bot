@@ -5,6 +5,7 @@ const { token, mongoURI } = require('./config.json');
 const cron = require("node-cron");
 const { embedEdit } = require("./function/edit.js");
 const { checkFeedbacks } = require('./function/feedback.js');
+const { checkContributions } = require('./function/contribution.js');
 const mongoose = require('mongoose');
 
 const client = new Client({
@@ -71,4 +72,10 @@ client.on('ready', () => {
   cron.schedule('0 */6 * * *', () => {
     checkFeedbacks(client);
   });
+
+  // notification DM des demandes edit/request traitées, une fois par jour à 14h
+  cron.schedule('0 14 * * *', () => {
+    checkContributions(client);
+  });
 });
+

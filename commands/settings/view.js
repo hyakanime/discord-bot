@@ -9,7 +9,10 @@ module.exports = async function(interaction, settings) {
             { name: 'Embed de lien Hyakanime', value: settings.hyakanimeLinkEmbedEnabled ? 'Activé' : 'Désactivé', inline: true },
             { name: 'Feur', value: settings.feurEnabled ? 'Activé' : 'Désactivé', inline: true },
             { name: 'Alerte Edition', value: settings.editAlertEnabled ? (settings.editAlertChannelId ? `Activé: <#${settings.editAlertChannelId}>` : 'Activé: Non défini') : 'Désactivé', inline: true },
-            { name: 'Notifications Anime', value: settings.animeNotifEnabled ? (settings.animeNotifChannelId ? `Activé: <#${settings.animeNotifChannelId}>` : 'Activé: Non défini') : 'Désactivé', inline: true }
+            { name: 'Notifications Anime', value: settings.animeNotifEnabled ? (settings.animeNotifChannelId ? `Activé: <#${settings.animeNotifChannelId}>` : 'Activé: Non défini') : 'Désactivé', inline: true },
+            { name: 'Saucy · Twitter/X', value: settings.saucyTwitterEnabled ? 'Activé' : 'Désactivé', inline: true },
+            { name: 'Saucy · Bluesky', value: settings.saucyBlueskyEnabled ? 'Activé' : 'Désactivé', inline: true },
+            { name: 'Saucy · Instagram', value: settings.saucyInstagramEnabled ? 'Activé' : 'Désactivé', inline: true }
         )
         .setTimestamp();
 
