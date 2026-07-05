@@ -16,26 +16,54 @@ function computeNewEntries(previousSeenIds, entries) {
   return { newEntries, currentIds };
 }
 
-const WORDING = {
-  'request:accepted': { title: (t) => `✅ Ta demande d'ajout de **${t}** a été acceptée !`, color: 0x00FF00 },
-  'request:refused': { title: (t) => `❌ Ta demande d'ajout de **${t}** a été refusée.`, color: 0xFF0000 },
-  'edit:accepted': { title: (t) => `✅ Ta proposition de modification pour **${t}** a été acceptée !`, color: 0x00FF00 },
-  'edit:partially': { title: (t) => `⚠️ Ta proposition de modification pour **${t}** a été partiellement acceptée.`, color: 0xFF9900 },
-  'edit:refused': { title: (t) => `❌ Ta proposition de modification pour **${t}** a été refusée.`, color: 0xFF0000 },
+const LABELS = {
+  'request:accepted': { emoji: '✅', text: 'Ajout accepté' },
+  'request:refused': { emoji: '❌', text: 'Ajout refusé' },
+  'edit:accepted': { emoji: '✅', text: 'Modif acceptée' },
+  'edit:partially': { emoji: '⚠️', text: 'Modif partielle' },
+  'edit:refused': { emoji: '❌', text: 'Modif refusée' },
 };
 
-function buildDmEmbed(entry) {
-  const spec = WORDING[`${entry._type}:${entry._status}`];
-  const embed = new EmbedBuilder()
-    .setTitle(spec.title(entry.title || 'Titre inconnu'))
-    .setColor(spec.color)
-    .setFooter({ text: 'Source : Hyakanime' })
-    .setTimestamp();
+const DIGEST_TITLE = '📬 Mise à jour de tes contributions Hyakanime';
+const EMBED_DESC_LIMIT = 4096; // limite Discord pour une description d'embed
 
+// Construit une ligne récapitulative pour une contribution.
+// Ex: "❌ Modif refusée : **One Piece** — Doublon"
+function buildContributionLine(entry) {
+  const label = LABELS[`${entry._type}:${entry._status}`];
+  let line = `${label.emoji} ${label.text} : **${entry.title || 'Titre inconnu'}**`;
   if (typeof entry.comment === 'string' && entry.comment.trim() !== '') {
-    embed.addFields({ name: 'Raison', value: entry.comment.slice(0, 1024) });
+    const reason = entry.comment.replace(/\s+/g, ' ').trim().slice(0, 300);
+    line += ` — ${reason}`;
   }
-  return embed;
+  return line;
+}
+
+// Regroupe toutes les contributions d'un utilisateur en un ou plusieurs embeds
+// (plusieurs uniquement si la liste dépasse la limite de description Discord).
+function buildUserDigestEmbeds(entries) {
+  const lines = entries.map(buildContributionLine);
+
+  const chunks = [];
+  let current = [];
+  let currentLen = 0;
+  for (const line of lines) {
+    if (current.length > 0 && currentLen + line.length + 1 > EMBED_DESC_LIMIT) {
+      chunks.push(current);
+      current = [];
+      currentLen = 0;
+    }
+    current.push(line);
+    currentLen += line.length + 1;
+  }
+  if (current.length > 0) chunks.push(current);
+
+  return chunks.map((chunkLines) => new EmbedBuilder()
+    .setTitle(DIGEST_TITLE)
+    .setColor(0x0099ff)
+    .setDescription(chunkLines.join('\n'))
+    .setFooter({ text: 'Source : Hyakanime' })
+    .setTimestamp());
 }
 
 const ENDPOINTS = [
@@ -87,14 +115,24 @@ async function checkContributions(client) {
       const links = await UserLink.find({});
       const byUid = new Map(links.map((l) => [l.hyakanimeUid, l]));
 
+      // Regrouper les nouvelles entrées par utilisateur lié → un seul DM par personne
+      const perUser = new Map();
       for (const entry of newEntries) {
         const link = byUid.get(entry.uid);
         if (!link) continue; // uid non lié à un compte Discord
+        if (!perUser.has(entry.uid)) perUser.set(entry.uid, { link, entries: [] });
+        perUser.get(entry.uid).entries.push(entry);
+      }
+
+      for (const { link, entries: userEntries } of perUser.values()) {
         try {
           const user = await client.users.fetch(link.discordId);
-          await user.send({ embeds: [buildDmEmbed(entry)] });
+          const embeds = buildUserDigestEmbeds(userEntries);
+          for (const embed of embeds) {
+            await user.send({ embeds: [embed] });
+          }
         } catch (err) {
-          console.error(`[Contribution] Échec DM à ${link.discordId} (uid ${entry.uid}):`, err.message);
+          console.error(`[Contribution] Échec DM à ${link.discordId} (uid ${link.hyakanimeUid}):`, err.message);
         }
       }
     }
@@ -110,4 +148,4 @@ async function checkContributions(client) {
   }
 }
 
-module.exports = { computeNewEntries, buildDmEmbed, fetchAll, checkContributions };
+module.exports = { computeNewEntries, buildContributionLine, buildUserDigestEmbeds, fetchAll, checkContributions };

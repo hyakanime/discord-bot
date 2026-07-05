@@ -1,7 +1,7 @@
 // test/contribution.test.js
 const { test } = require('node:test');
 const assert = require('node:assert');
-const { computeNewEntries, buildDmEmbed } = require('../function/contribution');
+const { computeNewEntries, buildContributionLine, buildUserDigestEmbeds } = require('../function/contribution');
 
 test('computeNewEntries: premier run (aucun id connu) => tout est nouveau', () => {
   const entries = [
@@ -35,46 +35,65 @@ test('computeNewEntries: déduplique par _id', () => {
   assert.deepStrictEqual(currentIds, ['a']);
 });
 
-test('buildDmEmbed: request accepted => titre + couleur verte', () => {
-  const embed = buildDmEmbed({ _type: 'request', _status: 'accepted', title: 'Naruto', comment: null });
-  assert.strictEqual(embed.data.title, "✅ Ta demande d'ajout de **Naruto** a été acceptée !");
-  assert.strictEqual(embed.data.color, 0x00FF00);
+test('buildContributionLine: les 5 combinaisons type/status', () => {
+  assert.strictEqual(
+    buildContributionLine({ _type: 'request', _status: 'accepted', title: 'Naruto', comment: null }),
+    '✅ Ajout accepté : **Naruto**');
+  assert.strictEqual(
+    buildContributionLine({ _type: 'request', _status: 'refused', title: 'Ash Again', comment: '' }),
+    '❌ Ajout refusé : **Ash Again**');
+  assert.strictEqual(
+    buildContributionLine({ _type: 'edit', _status: 'accepted', title: 'One Piece', comment: null }),
+    '✅ Modif acceptée : **One Piece**');
+  assert.strictEqual(
+    buildContributionLine({ _type: 'edit', _status: 'partially', title: 'Yu Gi Oh', comment: null }),
+    '⚠️ Modif partielle : **Yu Gi Oh**');
+  assert.strictEqual(
+    buildContributionLine({ _type: 'edit', _status: 'refused', title: 'Honey Lemon Soda', comment: null }),
+    '❌ Modif refusée : **Honey Lemon Soda**');
 });
 
-test('buildDmEmbed: request refused => couleur rouge', () => {
-  const embed = buildDmEmbed({ _type: 'request', _status: 'refused', title: 'Ash Again', comment: '' });
-  assert.strictEqual(embed.data.title, "❌ Ta demande d'ajout de **Ash Again** a été refusée.");
-  assert.strictEqual(embed.data.color, 0xFF0000);
+test('buildContributionLine: comment renseigné => raison ajoutée après un tiret', () => {
+  const line = buildContributionLine({ _type: 'request', _status: 'refused', title: 'X', comment: 'Doublon' });
+  assert.strictEqual(line, '❌ Ajout refusé : **X** — Doublon');
 });
 
-test('buildDmEmbed: edit accepted', () => {
-  const embed = buildDmEmbed({ _type: 'edit', _status: 'accepted', title: 'One Piece', comment: null });
-  assert.strictEqual(embed.data.title, '✅ Ta proposition de modification pour **One Piece** a été acceptée !');
-  assert.strictEqual(embed.data.color, 0x00FF00);
+test('buildContributionLine: comment null ou vide => pas de raison', () => {
+  assert.strictEqual(
+    buildContributionLine({ _type: 'request', _status: 'refused', title: 'X', comment: null }),
+    '❌ Ajout refusé : **X**');
+  assert.strictEqual(
+    buildContributionLine({ _type: 'request', _status: 'refused', title: 'X', comment: '   ' }),
+    '❌ Ajout refusé : **X**');
 });
 
-test('buildDmEmbed: edit partially => couleur orange', () => {
-  const embed = buildDmEmbed({ _type: 'edit', _status: 'partially', title: 'Yu Gi Oh', comment: null });
-  assert.strictEqual(embed.data.title, '⚠️ Ta proposition de modification pour **Yu Gi Oh** a été partiellement acceptée.');
-  assert.strictEqual(embed.data.color, 0xFF9900);
+test('buildContributionLine: comment multi-lignes aplati et tronqué', () => {
+  const long = 'a\nb'.padEnd(500, 'x');
+  const line = buildContributionLine({ _type: 'edit', _status: 'refused', title: 'T', comment: long });
+  assert.ok(!line.includes('\n'), 'pas de saut de ligne dans la raison');
+  assert.ok(line.length < 360, 'raison tronquée');
 });
 
-test('buildDmEmbed: edit refused', () => {
-  const embed = buildDmEmbed({ _type: 'edit', _status: 'refused', title: 'Honey Lemon Soda', comment: null });
-  assert.strictEqual(embed.data.title, '❌ Ta proposition de modification pour **Honey Lemon Soda** a été refusée.');
-  assert.strictEqual(embed.data.color, 0xFF0000);
+test('buildUserDigestEmbeds: peu de contributions => 1 seul embed listant toutes les lignes', () => {
+  const entries = [
+    { _type: 'request', _status: 'accepted', title: 'Naruto', comment: null },
+    { _type: 'edit', _status: 'refused', title: 'One Piece', comment: 'Doublon' },
+  ];
+  const embeds = buildUserDigestEmbeds(entries);
+  assert.strictEqual(embeds.length, 1);
+  assert.strictEqual(embeds[0].data.title, '📬 Mise à jour de tes contributions Hyakanime');
+  assert.ok(embeds[0].data.description.includes('✅ Ajout accepté : **Naruto**'));
+  assert.ok(embeds[0].data.description.includes('❌ Modif refusée : **One Piece** — Doublon'));
 });
 
-test('buildDmEmbed: comment renseigné => field Raison présent', () => {
-  const embed = buildDmEmbed({ _type: 'request', _status: 'refused', title: 'X', comment: 'Doublon' });
-  assert.ok(Array.isArray(embed.data.fields));
-  assert.strictEqual(embed.data.fields[0].name, 'Raison');
-  assert.strictEqual(embed.data.fields[0].value, 'Doublon');
-});
-
-test('buildDmEmbed: comment null ou vide => pas de field Raison', () => {
-  const e1 = buildDmEmbed({ _type: 'request', _status: 'refused', title: 'X', comment: null });
-  const e2 = buildDmEmbed({ _type: 'request', _status: 'refused', title: 'X', comment: '   ' });
-  assert.ok(!e1.data.fields || e1.data.fields.length === 0);
-  assert.ok(!e2.data.fields || e2.data.fields.length === 0);
+test('buildUserDigestEmbeds: beaucoup de contributions => découpage en plusieurs embeds', () => {
+  const entries = [];
+  for (let i = 0; i < 200; i++) {
+    entries.push({ _type: 'edit', _status: 'accepted', title: 'Titre '.padEnd(60, 'x') + i, comment: null });
+  }
+  const embeds = buildUserDigestEmbeds(entries);
+  assert.ok(embeds.length > 1, 'plusieurs embeds attendus');
+  for (const e of embeds) {
+    assert.ok(e.data.description.length <= 4096, 'description sous la limite Discord');
+  }
 });
