@@ -20,9 +20,12 @@ Tous appelés avec l'en-tête `authorization: Token ${tokenHyakanime}`.
 |---------|--------------------|----------|
 | edit | partially | `/edit?status=partially` |
 | edit | refused | `/edit?status=refused` |
-| edit | Accepted | `/edit?status=Accepted` |
-| request | Accepted | `/request?status=Accepted` |
+| edit | accepted | `/edit?status=accepted` |
+| request | accepted | `/request?status=accepted` |
 | request | refused | `/request?status=refused` |
+
+> Note : le paramètre `status` est **sensible à la casse** et doit être en minuscule
+> (`accepted`, pas `Accepted` — ce dernier renvoie un tableau vide).
 
 Chaque endpoint renvoie un tableau JSON. Champs utiles par entrée :
 

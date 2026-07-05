@@ -35,8 +35,8 @@ test('computeNewEntries: déduplique par _id', () => {
   assert.deepStrictEqual(currentIds, ['a']);
 });
 
-test('buildDmEmbed: request Accepted => titre + couleur verte', () => {
-  const embed = buildDmEmbed({ _type: 'request', _status: 'Accepted', title: 'Naruto', comment: null });
+test('buildDmEmbed: request accepted => titre + couleur verte', () => {
+  const embed = buildDmEmbed({ _type: 'request', _status: 'accepted', title: 'Naruto', comment: null });
   assert.strictEqual(embed.data.title, "✅ Ta demande d'ajout de **Naruto** a été acceptée !");
   assert.strictEqual(embed.data.color, 0x00FF00);
 });
@@ -47,8 +47,8 @@ test('buildDmEmbed: request refused => couleur rouge', () => {
   assert.strictEqual(embed.data.color, 0xFF0000);
 });
 
-test('buildDmEmbed: edit Accepted', () => {
-  const embed = buildDmEmbed({ _type: 'edit', _status: 'Accepted', title: 'One Piece', comment: null });
+test('buildDmEmbed: edit accepted', () => {
+  const embed = buildDmEmbed({ _type: 'edit', _status: 'accepted', title: 'One Piece', comment: null });
   assert.strictEqual(embed.data.title, '✅ Ta proposition de modification pour **One Piece** a été acceptée !');
   assert.strictEqual(embed.data.color, 0x00FF00);
 });

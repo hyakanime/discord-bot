@@ -17,9 +17,9 @@ function computeNewEntries(previousSeenIds, entries) {
 }
 
 const WORDING = {
-  'request:Accepted': { title: (t) => `✅ Ta demande d'ajout de **${t}** a été acceptée !`, color: 0x00FF00 },
+  'request:accepted': { title: (t) => `✅ Ta demande d'ajout de **${t}** a été acceptée !`, color: 0x00FF00 },
   'request:refused': { title: (t) => `❌ Ta demande d'ajout de **${t}** a été refusée.`, color: 0xFF0000 },
-  'edit:Accepted': { title: (t) => `✅ Ta proposition de modification pour **${t}** a été acceptée !`, color: 0x00FF00 },
+  'edit:accepted': { title: (t) => `✅ Ta proposition de modification pour **${t}** a été acceptée !`, color: 0x00FF00 },
   'edit:partially': { title: (t) => `⚠️ Ta proposition de modification pour **${t}** a été partiellement acceptée.`, color: 0xFF9900 },
   'edit:refused': { title: (t) => `❌ Ta proposition de modification pour **${t}** a été refusée.`, color: 0xFF0000 },
 };
@@ -41,8 +41,8 @@ function buildDmEmbed(entry) {
 const ENDPOINTS = [
   { type: 'edit', status: 'partially' },
   { type: 'edit', status: 'refused' },
-  { type: 'edit', status: 'Accepted' },
-  { type: 'request', status: 'Accepted' },
+  { type: 'edit', status: 'accepted' },
+  { type: 'request', status: 'accepted' },
   { type: 'request', status: 'refused' },
 ];
 
