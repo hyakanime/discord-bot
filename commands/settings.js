@@ -19,7 +19,6 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('settings')
         .setDescription('Configure les paramètres du serveur')
-        .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
         .addSubcommand(subcommand =>
             subcommand.setName('view')
                 .setDescription('Afficher les paramètres actuels du serveur'))

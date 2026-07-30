@@ -4,6 +4,9 @@ const schedule = require('node-schedule');
 const cron = require("node-cron");
 const mongoose = require("mongoose");
 const diffuseurEmoji = require("../diffuseurEmoji.json");
+const diffuseurLookup = Object.fromEntries(
+    Object.entries(diffuseurEmoji).map(([key, emoji]) => [key.toLowerCase(), { name: key, emoji }])
+);
 module.exports = {
     name: Events.ClientReady,
     once: true,
@@ -15,18 +18,19 @@ module.exports = {
     }
 }
 
-function getDiffuserUrl(listDiffuseur) {
+function getDiffuserUrl(streamingList) {
     try {
-        let diffuseursWithUrl = [];
-        Object.keys(listDiffuseur).map((key) => {
-            if (listDiffuseur[key] === "") return;
-            if (diffuseurEmoji[key] === undefined || diffuseurEmoji[key] === "REMPLIR AVEC UN EMOJI") {
-                diffuseursWithUrl.push(`\n ### [${key}](${listDiffuseur[key]})`);
-            } else {
-                diffuseursWithUrl.push(`\n ### ${diffuseurEmoji[key]} [${key}](${listDiffuseur[key]})`);
-            }
-        });
-        return diffuseursWithUrl;
+        if (!Array.isArray(streamingList)) return [];
+        return streamingList
+            .filter((streaming) => streaming.url && streaming.source)
+            .map((streaming) => {
+                const diffuseur = diffuseurLookup[streaming.source.toLowerCase()];
+                const name = diffuseur?.name || streaming.source;
+                const emoji = diffuseur && diffuseur.emoji !== "REMPLIR AVEC UN EMOJI"
+                    ? `${diffuseur.emoji} `
+                    : "";
+                return `\n ### ${emoji}[${name}](${streaming.url})`;
+            });
     } catch (error) {
         return [];
     }
@@ -44,7 +48,7 @@ async function getReleasesAnime(client, isCron = false) {
                 if (channel) {
                     data.map((anime) => {
                         if (!anime.episode.displayCalendar) return;
-                        const diffuseurs = getDiffuserUrl(anime.media.diffuseur ? anime.media.diffuseur : "");
+                        const diffuseurs = getDiffuserUrl(anime.media.streaming || []);
                         const nameAnime = anime.episode.animeTitle || anime.media.title || anime.media.romanji || anime.media.titleJP || "Titre inconnu";
                         const embed = new EmbedBuilder()
                             .setColor("#0099ff")
