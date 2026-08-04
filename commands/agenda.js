@@ -89,7 +89,6 @@ module.exports = {
                 interaction.editReply("Erreur lors de la récupération du compte");
             }
         }
-        console.log(userData)
         const result = await fetch(`${urlEndpoint}/agenda/${type}?uid=${userData === null ? "" : userData.uid}`);
         const data = await result.text();
         const response = JSON.parse(data);
@@ -109,7 +108,7 @@ module.exports = {
                 ...anime,
                 timestamp: Number(anime.episode.timestamp),
             })).sort((a, b) => a.timestamp - b.timestamp);
-            embed.setTitle(`Agenda du Jour`);
+            embed.setTitle(`Agenda du Jour ${userData ? `de ${userData.username}` : ""}`);
             
             for(anime of listAnime) {
                 if(!anime.episode.displayCalendar) return
@@ -125,7 +124,7 @@ module.exports = {
                 );
             }
         }else if(type === "timeline") {
-            embed.setTitle(`Agenda de la Semaine`);
+            embed.setTitle(`Agenda de la Semaine ${userData ? `de ${userData.username}` : ""}`);
             const week = [[], [], [], [], [], [], []];
             for (let j = 0; j < response.length; j++) {
                 const listAnime = response[j].airing
