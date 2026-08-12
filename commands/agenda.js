@@ -1,6 +1,31 @@
 const { SlashCommandBuilder, EmbedBuilder } = require("discord.js");
 const {logoUrl, urlEndpoint} = require("../config.json");
-const diffuseurEmoji = require("../diffuseurEmoji.json");
+const { fetchUserData} = require("../function/user.js");
+const UserEmbedCache = require('../models/UserEmbedCache');
+let timeoutId;
+
+async function getFromCache(pseudo) {
+  try {
+    const cachedResult = await UserEmbedCache.findOne({ pseudo, expiresAt: { $gt: new Date() } });
+    return cachedResult?.userData ? cachedResult.userData : null;
+  } catch (error) {
+    console.error('Erreur lors de la récupération du cache:', error);
+    return null;
+  }
+}
+
+async function addToCache(pseudo, userData) {
+  try {
+    const expiresAt = new Date(); expiresAt.setDate(expiresAt.getDate() + 1);
+    await UserEmbedCache.updateOne({ pseudo }, { pseudo, userData, expiresAt }, { upsert: true });
+  } catch (error) {
+    console.error('Erreur lors de l\'ajout au cache:', error);
+  }
+}
+let diffuseurEmoji = require("../diffuseurEmoji.json");
+diffuseurEmoji = Object.fromEntries(
+    Object.entries(diffuseurEmoji).map(([key, value]) => [key.toLowerCase(), value])
+);
 module.exports = {
     data: new SlashCommandBuilder()
         .setName("agenda")
@@ -19,13 +44,52 @@ module.exports = {
             .setName("visible")
             .setDescription("Afficher l'agenda pour tout le monde ?")
             .setRequired(false)
-        ),
+        )
+        .addStringOption(option => 
+            option.setName("pseudo")
+            .setDescription("Votre pseudo Hyakanime")
+            .setAutocomplete(true)
+            .setRequired(false)),
+        async autocomplete(interaction) {
+            const pseudo = interaction.options.getFocused() || "te";
+            clearTimeout(timeoutId);
+            timeoutId = setTimeout(async () => {
+              const response = await fetch(urlEndpoint + "/search/user/" + pseudo), data = await response.text(), result = JSON.parse(data), choices = [];
+              for (let i = 0; i < result.length && i <= 10; i++) {
+                if (result[i] == undefined) return;
+                choices.push({ username: result[i].username, uid: result[i].uid });
+              }
+              await interaction.respond(choices.map(choice => ({ name: choice.username, value: `${choice.username}` })));
+            }, 300);
+          },
     async execute(interaction) {
         const visible = interaction.options.getBoolean("visible") || false;
         const flags = visible ? 0 : 64;
         await interaction.deferReply({ flags });
+        const pseudo = interaction.options.getString("pseudo") || null;
         const type = interaction.options.getString("type") || "day";
-        const result = await fetch(`${urlEndpoint}/agenda/${type}`);
+        let userData = null;
+        if(pseudo){
+            try{
+                userData = await getFromCache(pseudo);
+                if (!userData) {
+                    const response = await fetch(urlEndpoint + "/user/" + pseudo);
+                    const data = await response.text();
+                    userData = JSON.parse(data);
+                    if (userData?.message) {
+                        const response2 = await fetch(urlEndpoint + "/search/user/" + pseudo);
+                        const result2 = JSON.parse(await response2.text());
+                        if (result2.length == 0) return null;
+                        userData = result2[0];
+                    }
+                    if (!userData) return await interaction.editReply("Erreur lors de la récupération du compte");
+                    await addToCache(pseudo, userData);
+                }
+            }catch(error){
+                interaction.editReply("Erreur lors de la récupération du compte");
+            }
+        }
+        const result = await fetch(`${urlEndpoint}/agenda/${type}?uid=${userData === null ? "" : userData.uid}`);
         const data = await result.text();
         const response = JSON.parse(data);
         const embed = new EmbedBuilder()
@@ -37,25 +101,22 @@ module.exports = {
             })
             .setColor("#0099ff")
             .setURL("https://hyakanime.fr/agenda")
-
+        
         if(type === "day") {
+            
             const listAnime = response.map((anime) => ({
                 ...anime,
                 timestamp: Number(anime.episode.timestamp),
             })).sort((a, b) => a.timestamp - b.timestamp);
-            embed.setTitle(`Agenda du Jour`);
+            embed.setTitle(`Agenda du Jour ${userData ? `de ${userData.username}` : ""}`);
             
             for(anime of listAnime) {
                 if(!anime.episode.displayCalendar) return
                 const date = new Date(anime.episode.timestamp);
                 const timeString = date.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", timeZone: "Europe/Paris" });
                 let diffuseur = "";
-                if(anime.media.diffuseur) {
-                    //une simple vérification pour voir si le fichier diffuseurEmoji.json est rempli ou pas (si vous modifiez un texte dans le fichier ça ira dans le if)
-                    if(diffuseurEmoji["Crunchyroll"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Disney"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Netflix"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["ADN"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Prime"] !== "REMPLIR AVEC UN EMOJI") {
-                        diffuseur = await getDiffuseurEmoji(anime.media.diffuseur);
-                         // Pour éviter les problèmes de rate limit
-                    }
+                if (anime.media.streaming?.length && isDiffuseurEmojiFilled()) {
+                    diffuseur = await getDiffuseurEmoji(anime.media.streaming);
                 }
                 embed.addFields({
                     name: `**${timeString}**`,
@@ -63,7 +124,7 @@ module.exports = {
                 );
             }
         }else if(type === "timeline") {
-            embed.setTitle(`Agenda de la Semaine`);
+            embed.setTitle(`Agenda de la Semaine ${userData ? `de ${userData.username}` : ""}`);
             const week = [[], [], [], [], [], [], []];
             for (let j = 0; j < response.length; j++) {
                 const listAnime = response[j].airing
@@ -79,12 +140,8 @@ module.exports = {
                         timestamp: `**${timeString}**`,
                         date: `${date.toLocaleDateString("fr-FR", { weekday: "long" }).charAt(0).toUpperCase() + date.toLocaleDateString("fr-FR", { weekday: "long" }).slice(1)} ${date.getDate()} ${date.toLocaleDateString("fr-FR", { month: "long" })}`,
                     }
-                    if(anime.media.diffuseur) {
-
-                        //une simple vérification pour voir si le fichier diffuseurEmoji.json est rempli ou pas (si vous modifiez un texte dans le fichier ça ira dans le if)
-                        if(diffuseurEmoji["Crunchyroll"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Disney"] !== "REMPLIR AVEC UN EMOJI" ||diffuseurEmoji["Netflix"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["ADN"] !== "REMPLIR AVEC UN EMOJI" || diffuseurEmoji["Prime"] !== "REMPLIR AVEC UN EMOJI") {
-                            info.diffuseur = await getDiffuseurEmoji(anime.media.diffuseur);
-                        }
+                    if (anime.media.streaming?.length && isDiffuseurEmojiFilled()) {
+                        info.diffuseur = await getDiffuseurEmoji(anime.media.streaming);
                     }
                     
 
@@ -122,11 +179,17 @@ module.exports = {
 };
 
 
-async function getDiffuseurEmoji(listDiffuseur) {
-        let emoji = "";
-        Object.keys(listDiffuseur).map((key) => {
-            if (diffuseurEmoji[key] === undefined) return;
-            emoji += `${diffuseurEmoji[key]}`;
-        });
-        return emoji;
+async function getDiffuseurEmoji(streamingList) {
+    let emoji = "";
+    for (const streaming of streamingList) {
+        const key = streaming.source?.toLowerCase();
+        if (key && diffuseurEmoji[key] && diffuseurEmoji[key] !== "REMPLIR AVEC UN EMOJI") {
+            emoji += diffuseurEmoji[key];
+        }
+    }
+    return emoji;
+}
+
+function isDiffuseurEmojiFilled() {
+    return Object.values(diffuseurEmoji).some(v => v !== "REMPLIR AVEC UN EMOJI");
 }
